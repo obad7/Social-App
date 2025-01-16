@@ -1,8 +1,8 @@
 import mongoose, { Schema, model } from "mongoose";
 
 export const roleType = {
-    admin: admin,
-    user: user
+    admin: "admin",
+    user: "user",
 };
 export const genderType = {
     male: "male",
@@ -49,11 +49,11 @@ const userSchema = new Schema(
         changeCredentials: Date,
         confirmEmailOTP: String,
         
-        phone: string,
-        address: string,
+        phone: String,
+        address: String,
         DOB: Date,
-        image: string,
-        coverImage: [string],
+        image: String,
+        coverImage: [String],
     },
     { timestamps: true }
 );

@@ -1,6 +1,4 @@
-import { Types } from "mongoose";
 import joi from "joi";
-import { rolesType } from "./auth.middleware.js";
 
 export const validation = (schema) =>{
     return (req, res, next) => {
@@ -10,7 +8,20 @@ export const validation = (schema) =>{
             const errorMessage = results.error.details.map((obj) => obj.message);
             return next(new Error(errorMessage, { cause: 400 }));
         }
-
         return next();
     };
 };
+
+
+export const generalFaileds = {
+    userName: joi.string().min(3).max(30),
+    email: joi
+        .string()
+        .email({
+            minDomainSegments: 2, 
+            maxDomainSegments: 2, 
+            tlds: { allow: ["com", "net"] }
+        }),
+    password: joi.string().required(),
+    confirmPassword: joi.string().valid(joi.ref('password')).required(),
+}

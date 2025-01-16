@@ -1,2 +1,10 @@
 import joi from 'joi';
-import { generalFields } from '../../Middlewares/validation.middleware.js';
+import { generalFaileds } from '../../Middlewares/validation.middleware.js';
+
+export const registerSchema = joi.object({
+    userName: generalFaileds.userName.required(),
+    email: generalFaileds.email.required(),
+    password: generalFaileds.password.required(),
+    confirmPassword: generalFaileds.confirmPassword.required(),
+}).required();
+
