@@ -1,26 +1,25 @@
 import  { EventEmitter } from "events"
-import jwt from "jsonwebtoken";
 import sendEmail, { subject } from "./sendEmail.js";
 import { signUpHTML } from "./generateHTML.js";
-import { generateToken } from "../token/token.js";
+import { customAlphabet } from "nanoid";
+import { UserModel } from "../../DB/Models/user.model.js";
+import { hash } from './../hashing/hash.js';
 
 export const emailEmitter = new EventEmitter();
 
 emailEmitter.on("sendEmail", async(email, userName) => {
-    // create email verification token
-    const emailVerificationToken = generateToken({
-        payload: { email }, 
-        signature: process.env.JWT_SECRET_EMAIL_VERIFICATION,
-    })
-    
-    // create email verification link
-    const emailVerificationLink = `http://localhost:3000/auth/activate_account/${emailVerificationToken}`;
 
-    const isSent = await sendEmail(
-        email,
-        subject.verifyEmail,
-        signUpHTML(emailVerificationLink, userName)
-    );
+    const otp = customAlphabet('0123456789', 5)();
 
-    // if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
+    const hashedOtp = hash({ plainText: otp });
+
+    await UserModel.updateOne({ email }, { confirmEmailOTP: hashedOtp });
+
+    const isSent = await sendEmail({
+        to: email,
+        subject: subject.verifyEmail,
+        html: signUpHTML(otp, userName)
+    });
+
+    if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
 });

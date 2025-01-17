@@ -35,13 +35,13 @@ const userSchema = new Schema(
         gender: {
             type: String,
             enum: Object.values(genderType),
-            default: "male"
+            default: genderType.male,
         },
 
         role: {
             type: String,
             enum: Object.values(roleType),
-            default: "user"
+            default: roleType.user,
         },
 
         confirmEmail: { type: Boolean, default: false },
@@ -54,6 +54,9 @@ const userSchema = new Schema(
         DOB: Date,
         image: String,
         coverImage: [String],
+
+        emailResendCount: { type: Number, default: 0 },
+        emailResendCooldown: Date,
     },
     { timestamps: true }
 );

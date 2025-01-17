@@ -24,4 +24,5 @@ export const generalFaileds = {
         }),
     password: joi.string().required(),
     confirmPassword: joi.string().valid(joi.ref('password')).required(),
+    code: joi.string().pattern(new RegExp(/^[0-9]{5}$/)),
 }

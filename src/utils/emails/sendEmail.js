@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const sendEmail = async (to, subject, html) => {
+const sendEmail = async ({to, subject, html}) => {
     const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
         port: process.env.SMTP_PORT,
@@ -12,7 +12,7 @@ const sendEmail = async (to, subject, html) => {
     });
 
     const message = await transporter.sendMail({    
-        from: process.env.SMTP_EMAIL,
+        from: `"Social Media App" <${process.env.SMTP_EMAIL}>`,
         to,
         subject,
         html,

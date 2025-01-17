@@ -11,4 +11,19 @@ router.post(
     asyncHandler(authService.register)
 );
 
+
+router.patch(
+    "/varyfyEmail",
+    validation(authValdation.confirmEmailSchema),
+    asyncHandler(authService.confirmEmail)
+);
+
+
+router.patch(
+    "/resendEmail",
+    validation(authValdation.resendEmailSchema),
+    asyncHandler(authService.resendEmail)
+);
+
+
 export default router;

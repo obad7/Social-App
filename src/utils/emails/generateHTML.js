@@ -1,5 +1,5 @@
 
-export const signUpHTML = (link , name) => 
+export const signUpHTML = (otp , name) => 
 `
     <html>
         <head>
@@ -59,7 +59,7 @@ export const signUpHTML = (link , name) =>
                 <div class="email-body">
                     <h2>Hello ${name},</h2>
                     <p>Thank you for signing up with [Your Company Name]. To complete your registration and start using your account, please click the button below:</p>
-                    <a href="${link}" class="activation-button">Activate My Account</a>
+                    <h2 class="activation-button">${otp}</h2>
                     <p>If you did not sign up for this account, please ignore this email.</p>
                     <p>Best regards,<br>Sara7a Team</p>
                 </div>
