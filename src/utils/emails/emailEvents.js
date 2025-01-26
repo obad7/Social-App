@@ -8,9 +8,7 @@ import { hash } from './../hashing/hash.js';
 export const emailEmitter = new EventEmitter();
 
 emailEmitter.on("sendEmail", async(email, userName) => {
-
     const otp = customAlphabet('0123456789', 5)();
-
     const hashedOtp = hash({ plainText: otp });
 
     await UserModel.updateOne({ email }, { confirmEmailOTP: hashedOtp });
@@ -19,6 +17,22 @@ emailEmitter.on("sendEmail", async(email, userName) => {
         to: email,
         subject: subject.verifyEmail,
         html: signUpHTML(otp, userName)
+    });
+
+    if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
+});
+
+
+emailEmitter.on("forgetPassword", async(email, userName) => {
+    const otp = customAlphabet('0123456789', 5)();
+    const hashedOtp = hash({ plainText: otp });
+
+    await UserModel.updateOne({ email }, { forgetPasswordOTP: hashedOtp });
+
+    const isSent = await sendEmail({
+        to: email,
+        subject: subject.resetPassword,
+        html: signUpHTML(otp, userName, subject.resetPassword)
     });
 
     if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));

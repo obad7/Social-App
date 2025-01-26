@@ -57,6 +57,7 @@ const userSchema = new Schema(
 
         emailResendCount: { type: Number, default: 0 },
         emailResendCooldown: Date,
+        forgetPasswordOTP: String
     },
     { timestamps: true }
 );

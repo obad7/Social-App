@@ -22,7 +22,7 @@ export const generalFaileds = {
             maxDomainSegments: 2, 
             tlds: { allow: ["com", "net"] }
         }),
-    password: joi.string().required(),
-    confirmPassword: joi.string().valid(joi.ref('password')).required(),
+    password: joi.string(),
+    confirmPassword: joi.string().valid(joi.ref('password')),
     code: joi.string().pattern(new RegExp(/^[0-9]{5}$/)),
 }

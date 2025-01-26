@@ -202,3 +202,42 @@ export const refresh_token = async (req, res, next) => {
 };
 
 
+export const forgetPassword = async (req, res, next) => {
+    const { email } = req.body;
+
+    const user = await UserModel.findOne({ email, isDeleted: false });
+    if (!user) return next(new Error("User not found", { cause: 400 }));
+
+    emailEmitter.emit("forgetPassword", email, user.userName);
+
+    return res.status(200).json({
+        success: true,
+        message: "email sent successfully",
+    });
+}
+
+
+export const resetPassword = async (req, res, next) => {
+    const { email, code, password } = req.body;
+
+    const user = await UserModel.findOne({ email, isDeleted: false });
+    if (!user) return next(new Error("User not found", { cause: 400 }));
+
+    if (!compareHash ({ plainText: code, hash: user.forgetPasswordOTP }))
+        return next(new Error("Invalid code", { cause: 400 }));
+
+    const hashedPassword = hash({ plainText: password });
+
+    await UserModel.updateOne(
+        { email }, 
+        { 
+            password: hashedPassword, 
+            $unset: { forgetPasswordOTP: "" } }
+        );
+
+    
+    return res.status(200).json({
+        success: true,
+        message: "Password reseted successfully",
+    });
+}

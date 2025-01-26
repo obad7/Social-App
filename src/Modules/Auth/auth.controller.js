@@ -39,4 +39,18 @@ router.get(
 );
 
 
+router.patch(
+    "/forget_password",
+    validation(authValdation.forgetPasswordSchema),
+    asyncHandler(authService.forgetPassword)
+);
+
+
+router.patch(
+    "/reset_password",
+    validation(authValdation.resetPasswordSchema),
+    asyncHandler(authService.resetPassword)
+);
+
+
 export default router;

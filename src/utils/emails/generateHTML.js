@@ -1,5 +1,5 @@
 
-export const signUpHTML = (otp , name) => 
+export const signUpHTML = (otp , name, subject) => 
 `
     <html>
         <head>
@@ -54,7 +54,7 @@ export const signUpHTML = (otp , name) =>
         <body>
             <div class="email-container">
                 <div class="email-header">
-                    <h1>Activate Your Account</h1>
+                    <h1>${subject}</h1>
                 </div>
                 <div class="email-body">
                     <h2>Hello ${name},</h2>
