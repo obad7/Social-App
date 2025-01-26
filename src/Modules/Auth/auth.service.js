@@ -2,7 +2,8 @@ import * as dbService from "../../DB/dbService.js";
 import { roleType, UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
-import { generateToken, verifyToken } from "../../utils/token/token.js";
+import { generateToken } from "../../utils/token/token.js";
+import { tokenTypes, decodedToken } from "../../Middlewares/auth.middleware.js";
 
 export const register = async (req, res, next) => {
     const { userName, email, password } = req.body;
@@ -156,31 +157,13 @@ export const login = async (req, res, next) => {
 };
 
 export const refresh_token = async (req, res, next) => {
-
     const { authorization } = req.headers;
 
-    const [ bearer, token ] = authorization.split(" ") || [];
-
-    if (!bearer || !token) 
-        return next(new Error("Invalid token", { cause: 401 }));
-
-    let SIGTATURE = undefined;
-
-    switch (bearer) {
-        case "Admin":
-            SIGTATURE = process.env.ADMIN_REFRESH_TOKEN;
-            break;
-        case "User":
-            SIGTATURE = process.env.USER_REFRESH_TOKEN;
-            break;
-        default:
-            break;
-    }
-
-    const decoded = verifyToken({ token: token, signature: SIGTATURE });
-
-    const user = await dbService.findOne({ model: UserModel, filter: { _id: decoded.id, isDeleted: false } });
-    if (!user) return next(new Error("User not found", { cause: 400 }));
+    const user = await decodedToken({ 
+        authorization: authorization, 
+        tokenType: tokenTypes.refresh, 
+        next: next 
+    });
 
     const sccessToken = generateToken({
         payload: { id: user._id },
