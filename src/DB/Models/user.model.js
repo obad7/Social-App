@@ -1,12 +1,12 @@
 import mongoose, { Schema, model } from "mongoose";
 
 export const roleType = {
-    admin: "admin",
-    user: "user",
+    admin: "Admin",
+    user: "User",
 };
 export const genderType = {
-    male: "male",
-    female: "female"
+    male: "Male",
+    female: "Female"
 };
 
 const userSchema = new Schema(

@@ -18,3 +18,9 @@ export const confirmEmailSchema = joi.object({
 export const resendEmailSchema = joi.object({
     email: generalFaileds.email.required(),
 }).required();
+
+
+export const loginSchema = joi.object({
+    email: generalFaileds.email.required(),
+    password: generalFaileds.password.required(),
+}).required();

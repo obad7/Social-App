@@ -26,4 +26,11 @@ router.patch(
 );
 
 
+router.post(
+    "/login",
+    validation(authValdation.loginSchema),
+    asyncHandler(authService.login)
+);
+
+
 export default router;

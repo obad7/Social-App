@@ -1,6 +1,7 @@
-import { UserModel } from "../../DB/Models/user.model.js";
+import { roleType, UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
+import { generateToken } from "../../utils/token/token.js";
 
 export const register = async (req, res, next) => {
     const { userName, email, password, confirmPassword } = req.body;
@@ -111,6 +112,38 @@ export const resendEmail = async (req, res, next) => {
 
 
 export const login = async (req, res, next) => {
-    
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({ email });
+    if (!user) return next(new Error("User not found", { cause: 400 }));
+
+    if (!user.confirmEmail) return next(new Error("Email is not confirmed", { cause: 400 }));
+
+    if (!compareHash({ plainText: password, hash: user.password }))
+        return next(new Error("Invalid password", { cause: 400 }));
+
+    const sccessToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.user
+            ? process.env.USER_ACCESS_TOKEN
+            : process.env.ADMIN_ACCESS_TOKEN
+    });
+
+    const refreshToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.user
+            ? process.env.USER_REFRESH_TOKEN
+            : process.env.ADMIN_REFRESH_TOKEN
+    });
+
+    return res.status(200).json({
+        success: true,
+        tokens: { 
+            accessToken: sccessToken, 
+            refreshToken : refreshToken,
+        },
+    });
 };
 
