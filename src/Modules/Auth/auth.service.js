@@ -1,7 +1,7 @@
 import { roleType, UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
-import { generateToken } from "../../utils/token/token.js";
+import { generateToken, verifyToken } from "../../utils/token/token.js";
 
 export const register = async (req, res, next) => {
     const { userName, email, password, confirmPassword } = req.body;
@@ -125,7 +125,61 @@ export const login = async (req, res, next) => {
     const sccessToken = generateToken({
         payload: { id: user._id },
         signature:
-            user.role === roleType.user
+            user.role === roleType.User
+            ? process.env.USER_ACCESS_TOKEN
+            : process.env.ADMIN_ACCESS_TOKEN,
+        options: { expiresIn: process.env.ACCSESS_TOKEN_EXPIRES },
+    });
+
+    const refreshToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.User
+            ? process.env.USER_REFRESH_TOKEN
+            : process.env.ADMIN_REFRESH_TOKEN,
+        options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES },
+    });
+
+    return res.status(200).json({
+        success: true,
+        tokens: { 
+            accessToken: sccessToken, 
+            refreshToken : refreshToken,
+        },
+    });
+};
+
+export const refresh_token = async (req, res, next) => {
+
+    const { authorization } = req.headers;
+
+    const [ bearer, token ] = authorization.split(" ") || [];
+
+    if (!bearer || !token) 
+        return next(new Error("Invalid token", { cause: 401 }));
+
+    let SIGTATURE = undefined;
+
+    switch (bearer) {
+        case "Admin":
+            SIGTATURE = process.env.ADMIN_REFRESH_TOKEN;
+            break;
+        case "User":
+            SIGTATURE = process.env.USER_REFRESH_TOKEN;
+            break;
+        default:
+            break;
+    }
+
+    const decoded = verifyToken({ token: token, signature: SIGTATURE });
+
+    const user = await UserModel.findOne({ _id: decoded.id, isDeleted: false });
+    if (!user) return next(new Error("User not found", { cause: 400 }));
+
+    const sccessToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.User
             ? process.env.USER_ACCESS_TOKEN
             : process.env.ADMIN_ACCESS_TOKEN
     });
@@ -133,7 +187,7 @@ export const login = async (req, res, next) => {
     const refreshToken = generateToken({
         payload: { id: user._id },
         signature:
-            user.role === roleType.user
+            user.role === roleType.User
             ? process.env.USER_REFRESH_TOKEN
             : process.env.ADMIN_REFRESH_TOKEN
     });
@@ -146,4 +200,5 @@ export const login = async (req, res, next) => {
         },
     });
 };
+
 

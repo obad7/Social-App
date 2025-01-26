@@ -33,4 +33,10 @@ router.post(
 );
 
 
+router.get(
+    "/refresh_token",
+    asyncHandler(authService.refresh_token)
+);
+
+
 export default router;
