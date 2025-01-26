@@ -35,13 +35,13 @@ const userSchema = new Schema(
         gender: {
             type: String,
             enum: Object.values(genderType),
-            default: genderType.male,
+            default: genderType.Male,
         },
 
         role: {
             type: String,
             enum: Object.values(roleType),
-            default: roleType.user,
+            default: roleType.User,
         },
 
         confirmEmail: { type: Boolean, default: false },

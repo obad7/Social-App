@@ -1,12 +1,13 @@
+import * as dbService from "../../DB/dbService.js";
 import { roleType, UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
 import { generateToken, verifyToken } from "../../utils/token/token.js";
 
 export const register = async (req, res, next) => {
-    const { userName, email, password, confirmPassword } = req.body;
+    const { userName, email, password } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await dbService.findOne({ model: UserModel, filter: { email } });
     if (user) {return next(new Error("User already exists", { cause: 400 }))}
 
     const hashedPassword = hash({ plainText: password });
@@ -14,11 +15,14 @@ export const register = async (req, res, next) => {
     // set changeCredentials to expire in 3 minutes
     const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
 
-    const newUser = await UserModel.create({ 
-        userName, 
-        email, 
-        password : hashedPassword,
-        changeCredentials: expirationTime,
+    const newUser = await dbService.create({ 
+        model: UserModel, 
+        data: { 
+            userName, 
+            email, 
+            password : hashedPassword,
+            changeCredentials: expirationTime,
+        } 
     });
 
     emailEmitter.emit("sendEmail", email, userName);
@@ -33,7 +37,7 @@ export const register = async (req, res, next) => {
 export const confirmEmail = async (req, res, next) => {
     const { email, code } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await dbService.findOne({ model: UserModel, filter: { email } });
     if (!user) {return next(new Error("User not found", { cause: 400 }))}
 
     if (user.confirmEmailOTP == true) {return next(new Error("Email already confirmed", { cause: 400 }))}
@@ -45,18 +49,19 @@ export const confirmEmail = async (req, res, next) => {
     if (!compareHash({ plainText: code, hash: user.confirmEmailOTP }))
         return next(new Error("Invalid code", { cause: 400 }))
 
-    await UserModel.updateOne(
-        { email }, 
-        { 
-            confirmEmail: true, 
-            $unset: { 
-                confirmEmailOTP: "", 
+    await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { email }, 
+        data: { 
+            confirmEmail: true,
+            $unset: {
+                confirmEmailOTP: "",
                 changeCredentials: "",
                 emailResendCount: "",
                 emailResendCooldown: "",
-            } 
-        }
-    );
+            }
+        } 
+    });
 
     return res.status(200).json({ 
         success: true,
@@ -68,7 +73,7 @@ export const confirmEmail = async (req, res, next) => {
 export const resendEmail = async (req, res, next) => {
     const { email } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await dbService.findOne({ model: UserModel, filter: { email } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
     if (user.confirmEmail === true) return next(new Error("Email is already confirmed", { cause: 400 }));
@@ -95,14 +100,15 @@ export const resendEmail = async (req, res, next) => {
     // Emit email event and update the user
     emailEmitter.emit("sendEmail", user.email, user.userName);
 
-    await UserModel.updateOne(
-        { email },
-        {
+    await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { email }, 
+        data: { 
             emailResendCount: updatedResendCount,
             emailResendCooldown: newCooldown,
             changeCredentials: expirationTime,
-        }
-    );
+        } 
+    });
 
     return res.status(200).json({
         success: true,
@@ -114,7 +120,7 @@ export const resendEmail = async (req, res, next) => {
 export const login = async (req, res, next) => {
     const { email, password } = req.body;
 
-    const user = await UserModel.findOne({ email });
+    const user = await dbService.findOne({ model: UserModel, filter: { email } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
     if (!user.confirmEmail) return next(new Error("Email is not confirmed", { cause: 400 }));
@@ -173,7 +179,7 @@ export const refresh_token = async (req, res, next) => {
 
     const decoded = verifyToken({ token: token, signature: SIGTATURE });
 
-    const user = await UserModel.findOne({ _id: decoded.id, isDeleted: false });
+    const user = await dbService.findOne({ model: UserModel, filter: { _id: decoded.id, isDeleted: false } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
     const sccessToken = generateToken({
@@ -205,7 +211,7 @@ export const refresh_token = async (req, res, next) => {
 export const forgetPassword = async (req, res, next) => {
     const { email } = req.body;
 
-    const user = await UserModel.findOne({ email, isDeleted: false });
+    const user = await dbService.findOne({ model: UserModel, filter: { email, isDeleted: false } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
     emailEmitter.emit("forgetPassword", email, user.userName);
@@ -220,7 +226,7 @@ export const forgetPassword = async (req, res, next) => {
 export const resetPassword = async (req, res, next) => {
     const { email, code, password } = req.body;
 
-    const user = await UserModel.findOne({ email, isDeleted: false });
+    const user = await dbService.findOne({ model: UserModel, filter: { email, isDeleted: false } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
     if (!compareHash ({ plainText: code, hash: user.forgetPasswordOTP }))
@@ -228,12 +234,14 @@ export const resetPassword = async (req, res, next) => {
 
     const hashedPassword = hash({ plainText: password });
 
-    await UserModel.updateOne(
-        { email }, 
-        { 
+    await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { email }, 
+        data: { 
             password: hashedPassword, 
-            $unset: { forgetPasswordOTP: "" } }
-        );
+            $unset: { forgetPasswordOTP: "" } 
+        } 
+    });
 
     
     return res.status(200).json({

@@ -1,3 +1,4 @@
+import * as dbService from "../../DB/dbService.js";
 import  { EventEmitter } from "events"
 import sendEmail, { subject } from "./sendEmail.js";
 import { signUpHTML } from "./generateHTML.js";
@@ -11,7 +12,11 @@ emailEmitter.on("sendEmail", async(email, userName) => {
     const otp = customAlphabet('0123456789', 5)();
     const hashedOtp = hash({ plainText: otp });
 
-    await UserModel.updateOne({ email }, { confirmEmailOTP: hashedOtp });
+    await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { email }, 
+        data: { confirmEmailOTP: hashedOtp } 
+    });
 
     const isSent = await sendEmail({
         to: email,
@@ -27,7 +32,11 @@ emailEmitter.on("forgetPassword", async(email, userName) => {
     const otp = customAlphabet('0123456789', 5)();
     const hashedOtp = hash({ plainText: otp });
 
-    await UserModel.updateOne({ email }, { forgetPasswordOTP: hashedOtp });
+    await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { email }, 
+        data: { forgetPasswordOTP: hashedOtp } 
+    });
 
     const isSent = await sendEmail({
         to: email,
