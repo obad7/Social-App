@@ -1,4 +1,4 @@
-import mongoose, { Schema, model } from "mongoose";
+import mongoose, { Schema, model, Types } from "mongoose";
 
 export const roleType = {
     Admin: "Admin",
@@ -57,7 +57,14 @@ const userSchema = new Schema(
 
         emailResendCount: { type: Number, default: 0 },
         emailResendCooldown: Date,
-        forgetPasswordOTP: String
+        forgetPasswordOTP: String,
+
+        viewers: [
+            {
+                userId: { type: Types.ObjectId, ref: "User" },
+                time: Date,
+            }   
+        ]
     },
     { timestamps: true }
 );
