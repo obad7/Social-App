@@ -64,7 +64,11 @@ const userSchema = new Schema(
                 userId: { type: Types.ObjectId, ref: "User" },
                 time: Date,
             }   
-        ]
+        ],
+
+        tempEmail: String,
+        tampEmailOTP: String,
+        
     },
     { timestamps: true }
 );

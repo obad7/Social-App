@@ -8,13 +8,35 @@ import { hash } from './../hashing/hash.js';
 
 export const emailEmitter = new EventEmitter();
 
+emailEmitter.on("sendEmail", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id }, 
+        subjectType: subject.verifyEmail,
+    });
+});
+
+emailEmitter.on("forgetPassword", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id }, 
+        subjectType: subject.resetPassword,
+    });
+});
+
+emailEmitter.on("updateEmail", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id },
+        subjectType: subject.updateEmail,
+    });
+});
+
+
 export const sendCode = async ({ 
     data = {}, 
     subjectType = subject.verifyEmail,
 }) => {
     const { userName, email, id } = data;
 
-    const otp = customAlphabet('0123456789', 5)();
+    const otp = customAlphabet('0123456789', 6)();
     const hashedOtp = hash({ plainText: otp });
 
     let updateData = { };
@@ -27,7 +49,7 @@ export const sendCode = async ({
             updateData = { forgetPasswordOTP: hashedOtp };
             break;
         case subject.updateEmail:
-            updateData = { tempEmailOTP: hashedOtp };
+            updateData = { tampEmailOTP: hashedOtp };
             break;
         default:
             break;
@@ -44,28 +66,4 @@ export const sendCode = async ({
         subject: subjectType,
         html: signUpHTML(otp, userName, subjectType)
     });
-
-    if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
 };
-
-emailEmitter.on("sendEmail", async(email, userName, id) => {
-    await sendCode({ 
-        data: { userName, email, id }, 
-        subjectType: subject.verifyEmail,
-    });
-});
-
-
-emailEmitter.on("forgetPassword", async(email, userName, id) => {
-    await sendCode({ 
-        data: { userName, email, id }, 
-        subjectType: subject.resetPassword,
-    });
-});
-
-emailEmitter.on("updateEmail", async(email, userName, id) => {
-    await sendCode({ 
-        data: { userName, email, id }, 
-        subjectType: subject.updateEmail,
-    });
-});

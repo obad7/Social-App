@@ -14,13 +14,26 @@ router.post(
     asyncHandler(userService.getProfile)
 );
 
-
 router.get(
     "/profile/:profileId",
     validation(userValidation.shareProfileSchema),
     authentication(),
     asyncHandler(userService.shareProfile)
 )
+
+router.patch(
+    "/profile/email",
+    validation(userValidation.updateEmailSchema),
+    authentication(),
+    asyncHandler(userService.updateEmail)
+);
+
+router.patch(
+    "/profile/resetEmail",
+    validation(userValidation.resetEmailSchema),
+    authentication(),
+    asyncHandler(userService.resetEmail)
+);
 
 
 export default router;

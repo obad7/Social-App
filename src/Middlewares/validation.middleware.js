@@ -31,6 +31,6 @@ export const generalFaileds = {
         }),
     password: joi.string(),
     confirmPassword: joi.string().valid(joi.ref('password')),
-    code: joi.string().pattern(new RegExp(/^[0-9]{5}$/)),
+    code: joi.string().pattern(new RegExp(/^[0-9]{6}$/)),
     id: joi.string().custom(isValidObjectId),
 }
