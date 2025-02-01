@@ -23,6 +23,7 @@ const sendEmail = async ({to, subject, html}) => {
 export const subject = {
     resetPassword: "Reset Password",
     verifyEmail: "Activate your account",
+    updateEmail: "Update your email",
 }
 
 export default sendEmail;

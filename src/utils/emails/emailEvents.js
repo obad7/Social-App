@@ -8,41 +8,64 @@ import { hash } from './../hashing/hash.js';
 
 export const emailEmitter = new EventEmitter();
 
-emailEmitter.on("sendEmail", async(email, userName) => {
+export const sendCode = async ({ 
+    data = {}, 
+    subjectType = subject.verifyEmail,
+}) => {
+    const { userName, email, id } = data;
+
     const otp = customAlphabet('0123456789', 5)();
     const hashedOtp = hash({ plainText: otp });
 
+    let updateData = { };
+
+    switch (subjectType) {
+        case subject.verifyEmail:
+            updateData = { confirmEmailOTP: hashedOtp };
+            break;
+        case subject.resetPassword:
+            updateData = { forgetPasswordOTP: hashedOtp };
+            break;
+        case subject.updateEmail:
+            updateData = { tempEmailOTP: hashedOtp };
+            break;
+        default:
+            break;
+    }
+
     await dbService.updateOne({ 
         model: UserModel, 
-        filter: { email }, 
-        data: { confirmEmailOTP: hashedOtp } 
+        filter: { _id: id }, 
+        data: updateData,
     });
 
     const isSent = await sendEmail({
         to: email,
-        subject: subject.verifyEmail,
-        html: signUpHTML(otp, userName)
+        subject: subjectType,
+        html: signUpHTML(otp, userName, subjectType)
     });
 
     if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
+};
+
+emailEmitter.on("sendEmail", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id }, 
+        subjectType: subject.verifyEmail,
+    });
 });
 
 
-emailEmitter.on("forgetPassword", async(email, userName) => {
-    const otp = customAlphabet('0123456789', 5)();
-    const hashedOtp = hash({ plainText: otp });
-
-    await dbService.updateOne({ 
-        model: UserModel, 
-        filter: { email }, 
-        data: { forgetPasswordOTP: hashedOtp } 
+emailEmitter.on("forgetPassword", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id }, 
+        subjectType: subject.resetPassword,
     });
+});
 
-    const isSent = await sendEmail({
-        to: email,
-        subject: subject.resetPassword,
-        html: signUpHTML(otp, userName, subject.resetPassword)
+emailEmitter.on("updateEmail", async(email, userName, id) => {
+    await sendCode({ 
+        data: { userName, email, id }, 
+        subjectType: subject.updateEmail,
     });
-
-    if (!isSent) return next(new Error("Failed to send email", { cause: 500 }));
 });
