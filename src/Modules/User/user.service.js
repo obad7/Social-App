@@ -102,8 +102,30 @@ export const resetEmail = async (req, res, next) => {
     });
 
     return res.status(200).json({ 
-    success: true,
-    data: { user },
+        success: true,
+        data: { user },
+    });
+};
+
+
+export const updatePassword = async (req, res, next) => {
+    const { oldPassword, password } = req.body;
+
+    if (!compareHash({ plainText: oldPassword, hash: req.user.password }))
+        return next(new Error("Invalid password", { cause: 400 }));
+
+    const user = await dbService.updateOne({ 
+        model: UserModel, 
+        filter: { _id: req.user._id }, 
+        data: { 
+            password: hash({ plainText: password }),
+            changeCredentials: Date.now(),
+        } 
+    });
+
+    return res.status(200).json({ 
+        success: true,
+        message: "Password updated successfully",
     });
 };
 

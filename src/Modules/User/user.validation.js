@@ -14,3 +14,8 @@ export const resetEmailSchema = joi.object({
     newCode: generalFaileds.code.required(),
 }).required();
 
+export const updatePasswordSchema = joi.object({
+    oldPassword: generalFaileds.password.required(),
+    password: generalFaileds.password.not(joi.ref('oldPassword')).required(),
+    confirmPassword: generalFaileds.confirmPassword.required(),
+}).required();

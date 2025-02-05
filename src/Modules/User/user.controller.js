@@ -35,5 +35,12 @@ router.patch(
     asyncHandler(userService.resetEmail)
 );
 
+router.patch(
+    "/updatePassword",
+    validation(userValidation.updatePasswordSchema),
+    authentication(),
+    asyncHandler(userService.updatePassword)
+);
+
 
 export default router;
