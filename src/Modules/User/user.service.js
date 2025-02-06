@@ -177,3 +177,19 @@ export const uploadImageOnDisk = async (req, res, next) => {
         data: { user },
     });
 };
+
+
+export const uploadMultipleImagesOnDisk = async (req, res, next) => { 
+
+    const user = await dbService.findByIdAndUpdate({
+        model: UserModel,
+        id: req.user._id,
+        data: { coverImages: req.files.map((file) => file.path) },
+        options: { new: true },
+    });
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};

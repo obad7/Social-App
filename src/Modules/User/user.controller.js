@@ -50,12 +50,18 @@ router.patch(
     asyncHandler(userService.updatePassword)
 );
 
-
 router.post(
     "/profilePicture",
     authentication(),
     upload().single("image"),
     asyncHandler(userService.uploadImageOnDisk)
+);
+
+router.post(
+    "/multipleImages",
+    authentication(),
+    upload().array("images", 3),
+    asyncHandler(userService.uploadMultipleImagesOnDisk)
 );
 
 

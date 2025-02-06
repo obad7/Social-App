@@ -53,7 +53,7 @@ const userSchema = new Schema(
         address: String,
         DOB: Date,
         image: String,
-        coverImage: [String],
+        coverImages: [String],
 
         emailResendCount: { type: Number, default: 0 },
         emailResendCooldown: Date,
