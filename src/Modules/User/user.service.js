@@ -163,3 +163,17 @@ export const updatePassword = async (req, res, next) => {
     });
 };
 
+
+export const uploadImageOnDisk = async (req, res, next) => { 
+    const user = await dbService.findByIdAndUpdate({
+        model: UserModel,
+        id: req.user._id,
+        data: { image: req.file.path },
+        options: { new: true },
+    });
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};

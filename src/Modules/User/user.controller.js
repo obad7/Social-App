@@ -4,6 +4,7 @@ import * as userService from "./user.service.js";
 import { asyncHandler } from "../../utils/error handling/asyncHandler.js";
 import * as userValidation from "./user.validation.js"
 import { validation } from "../../Middlewares/validation.middleware.js";
+import { upload } from "../../utils/file uploading/multerUpload.js";
 
 const router = Router();
 
@@ -47,6 +48,14 @@ router.patch(
     validation(userValidation.updatePasswordSchema),
     authentication(),
     asyncHandler(userService.updatePassword)
+);
+
+
+router.post(
+    "/profilePicture",
+    authentication(),
+    upload().single("image"),
+    asyncHandler(userService.uploadImageOnDisk)
 );
 
 
