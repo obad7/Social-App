@@ -19,3 +19,11 @@ export const updatePasswordSchema = joi.object({
     password: generalFaileds.password.not(joi.ref('oldPassword')).required(),
     confirmPassword: generalFaileds.confirmPassword.required(),
 }).required();
+
+export const updateProfileSchema = joi.object({
+    userName: generalFaileds.userName,
+    gender: generalFaileds.gender,
+    address: generalFaileds.address,
+    phone: generalFaileds.phone,
+    DOB: generalFaileds.DOB,
+}).required();

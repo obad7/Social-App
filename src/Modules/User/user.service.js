@@ -1,9 +1,21 @@
 import * as dbService from "../../DB/dbService.js";
 import { UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
+import { encrypt, decrypt } from "../../utils/encryption/encryption.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
 
 export const getProfile = async (req, res, next) => {
+
+    // if (req.user.phone) {
+    //     const decoded = decrypt({
+    //         encrypted: req.user.phone,
+    //         signature: process.env.ENCRYPTION_KEY,
+    //     });
+    //     console.log("decoded:",decoded);
+    //     req.user.phone = decoded;
+    // }
+    // console.log("req.user.phone",req.user.phone);
+
     const user = await dbService.findOne({ 
         model: UserModel, 
         filter: { _id: req.user._id, isDeleted: false },
@@ -100,6 +112,28 @@ export const resetEmail = async (req, res, next) => {
             } 
         } 
     });
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};
+
+
+export const updateProfile = async (req, res, next) => {
+    if(req.body.phone) {
+        req.body.phone = encrypt({ 
+            plainText : req.body.phone,
+            signature: process.env.ENCRYPTION_KEY,
+        });
+    }
+
+    const user = await dbService.findByIdAndUpdate({
+        model: UserModel,
+        id: req.user._id,
+        data: {...req.body},
+        options: { new: true, runValidators: true },
+    })
 
     return res.status(200).json({ 
         success: true,

@@ -36,6 +36,13 @@ router.patch(
 );
 
 router.patch(
+    "/profile/updateProfile",
+    validation(userValidation.updateProfileSchema),
+    authentication(),
+    asyncHandler(userService.updateProfile)
+);
+
+router.patch(
     "/updatePassword",
     validation(userValidation.updatePasswordSchema),
     authentication(),
