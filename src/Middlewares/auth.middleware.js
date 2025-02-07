@@ -57,7 +57,6 @@ export const authentication = () => {
         const { authorization } = req.headers;
         req.user = await decodedToken({ 
             authorization: authorization,
-            tokenType: tokenTypes.accsess,
             next: next,
         });
         return next();
