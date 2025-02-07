@@ -27,8 +27,6 @@ export const register = async (req, res, next) => {
     });
 
     const findNewUser = await dbService.findOne({ model: UserModel, filter: { email } });
-    console.log("findNewUser", findNewUser._id );
-
     emailEmitter.emit("sendEmail", userName, email, findNewUser._id);
 
     return res.status(200).json({ 
@@ -47,11 +45,9 @@ export const confirmEmail = async (req, res, next) => {
     if (user.confirmEmailOTP == true) {return next(new Error("Email already confirmed", { cause: 400 }))}
 
     // check if the code has expired
-    // if (new Date() > user.changeCredentials) 
-    //     return next(new Error("code has expired, resend email", { cause: 400 }));
+    if (new Date() > user.changeCredentials) 
+        return next(new Error("code has expired, resend email", { cause: 400 }));
 
-    console.log(user.confirmEmailOTP);
-    console.log(code);
     if (!compareHash({ plainText: code, hash: user.confirmEmailOTP }))
         return next(new Error("Invalid code", { cause: 400 }))
 

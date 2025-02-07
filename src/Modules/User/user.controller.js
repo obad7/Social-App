@@ -53,7 +53,7 @@ router.patch(
 router.post(
     "/profilePicture",
     authentication(),
-    upload(fileValidation.images).single("image"),
+    upload(fileValidation.images, "uploads/user").single("image"),
     asyncHandler(userService.uploadImageOnDisk)
 );
 

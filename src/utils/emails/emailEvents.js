@@ -35,13 +35,9 @@ export const sendCode = async ({
     subjectType = subject.verifyEmail,
 }) => {
     const { userName, email, id } = data;
-    console.log("userID",id);
 
     const otp = customAlphabet('0123456789', 6)();
     const hashedOtp = hash({ plainText: otp });
-
-    console.log("Generated OTP:", otp);
-    console.log("Hashed OTP:", hashedOtp);
 
     let updateData = { };
 
@@ -59,15 +55,11 @@ export const sendCode = async ({
             break;
     }
 
-    console.log("updateData:", updateData);
-
-    const user = await dbService.updateOne({ 
+    await dbService.updateOne({ 
         model: UserModel, 
         filter: { _id: id }, 
         data: updateData,
     });
-
-    console.log("Updated user in DB:", user);
 
     const isSent = await sendEmail({
         to: email,

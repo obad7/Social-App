@@ -1,5 +1,7 @@
 import multer, { diskStorage } from "multer";
 import { nanoid } from "nanoid";
+import path from "path";
+import fs from "fs";
 
 // spacify file extensions
 export const fileValidation = {
@@ -9,9 +11,20 @@ export const fileValidation = {
     audio: ["audio/mpeg"],
 };
 
-export const upload = ( fileType ) => {
+export const upload = ( fileType, folder ) => {
     const storage = diskStorage({
-        destination: "uploads",
+        destination: (req, file, cb) => {
+            const folderPath = path.resolve(".", `${folder}/${req.user._id}`);
+            if (fs.existsSync(folderPath)) {
+                return cb(null, folderPath);
+            } else {
+                fs.mkdirSync(folderPath, { recursive: true });
+                const filename = `${folder}/${req.user._id}`;
+                cb(null, filename);
+            }
+            
+        },
+
         filename: (req, file, cb) => {
             cb(null,  nanoid() + "_" + file.originalname);
         },
