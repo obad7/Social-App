@@ -1,8 +1,10 @@
 import * as dbService from "../../DB/dbService.js";
-import { UserModel } from "../../DB/Models/user.model.js";
+import { defultImage, UserModel } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { encrypt, decrypt } from "../../utils/encryption/encryption.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
+import path from "path";
+import fs from "fs";
 
 export const getProfile = async (req, res, next) => {
 
@@ -187,6 +189,25 @@ export const uploadMultipleImagesOnDisk = async (req, res, next) => {
         data: { coverImages: req.files.map((file) => file.path) },
         options: { new: true },
     });
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};
+
+
+export const deleteprofilePicture = async (req, res, next) => { 
+    const user = await dbService.findById({
+        model: UserModel,
+        id: { _id: req.user._id},
+    })
+
+    const imagePath = path.resolve(".", user.image);
+    fs.unlinkSync(imagePath);
+    user.image = defultImage;
+
+    await user.save();
 
     return res.status(200).json({ 
         success: true,

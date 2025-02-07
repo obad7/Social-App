@@ -22,7 +22,6 @@ export const upload = ( fileType, folder ) => {
                 const filename = `${folder}/${req.user._id}`;
                 cb(null, filename);
             }
-            
         },
 
         filename: (req, file, cb) => {

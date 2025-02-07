@@ -4,10 +4,13 @@ export const roleType = {
     Admin: "Admin",
     User: "User",
 };
+
 export const genderType = {
     Male: "Male",
     Female: "Female"
 };
+
+export const defultImage = "uploads\\Default_image.jpg";
 
 const userSchema = new Schema(
     {
@@ -52,7 +55,7 @@ const userSchema = new Schema(
         phone: String,
         address: String,
         DOB: Date,
-        image: String,
+        image: { type: String, default: defultImage },
         coverImages: [String],
 
         emailResendCount: { type: Number, default: 0 },

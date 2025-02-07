@@ -60,8 +60,15 @@ router.post(
 router.post(
     "/multipleImages",
     authentication(),
-    upload().array("images", 3),
+    upload(fileValidation.images, "uploads/user").array("image"),
     asyncHandler(userService.uploadMultipleImagesOnDisk)
+);
+
+router.delete(
+    "/deleteprofilePicture",
+    authentication(),
+    upload(fileValidation.images, "uploads/user").single("image"),
+    asyncHandler(userService.deleteprofilePicture)
 );
 
 
