@@ -1,5 +1,5 @@
 import * as dbService from "../../DB/dbService.js";
-import { defultImage, UserModel } from "../../DB/Models/user.model.js";
+import { defultImage, UserModel, defultImageOnCloud, defultPublicId } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { encrypt, decrypt } from "../../utils/encryption/encryption.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
@@ -166,6 +166,7 @@ export const updatePassword = async (req, res, next) => {
     });
 };
 
+// Disk storage
 
 export const uploadImageOnDisk = async (req, res, next) => { 
     const user = await dbService.findByIdAndUpdate({
@@ -198,7 +199,7 @@ export const uploadMultipleImagesOnDisk = async (req, res, next) => {
 };
 
 
-export const deleteprofilePicture = async (req, res, next) => { 
+export const deleteProfilePicture = async (req, res, next) => { 
     const user = await dbService.findById({
         model: UserModel,
         id: { _id: req.user._id},
@@ -239,3 +240,29 @@ export const uploadImageOnCloud = async (req, res, next) => {
         data: { user },
     });
 };
+
+
+export const deleteImageOnCloud = async (req, res, next) => { 
+
+    const user = await dbService.findById({
+        model: UserModel,
+        id: { _id: req.user._id},
+    });
+
+    const results = await cloudinary.uploader.destroy(user.image.public_id);
+
+    if(results.result === "ok"){
+        user.image = { 
+            secure_url: defultImageOnCloud,
+            public_id: defultPublicId
+        };
+    }
+    await user.save();
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};
+
+

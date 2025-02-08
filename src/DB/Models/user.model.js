@@ -10,7 +10,14 @@ export const genderType = {
     Female: "Female"
 };
 
+// Disk Storage
 export const defultImage = "uploads\\Default_image.jpg";
+
+// Cloud Storage
+export const defultImageOnCloud = 
+    "https://res.cloudinary.com/dt83ykbei/image/upload/v1738976103/Default_image_wykjm1.jpg";
+export const defultPublicId = 
+    "Default_image_pawsie";
 
 const userSchema = new Schema(
     {
@@ -49,8 +56,14 @@ const userSchema = new Schema(
 
         // Cloud Storage
         image: {
-            secure_url: String,
-            public_id: String
+            secure_url: {
+                type: String,
+                default: defultImageOnCloud
+            },
+            public_id: {
+                type: String,
+                default: defultPublicId
+            }
         },
 
         // Disk Storage

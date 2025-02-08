@@ -68,10 +68,10 @@ router.post(
 );
 
 router.delete(
-    "/deleteprofilePicture",
+    "/deleteProfilePicture",
     authentication(),
     upload(fileValidation.images, "uploads/user").single("image"),
-    asyncHandler(userService.deleteprofilePicture)
+    asyncHandler(userService.deleteProfilePicture)
 );
 
 // Cloud Storage
@@ -81,6 +81,13 @@ router.post(
     authentication(),
     uploadOnCloud().single("image"),
     asyncHandler(userService.uploadImageOnCloud)
+);
+
+router.delete(
+    "/deleteImageOnCloud",
+    authentication(),
+    uploadOnCloud().single("image"),
+    asyncHandler(userService.deleteImageOnCloud)
 );
 
 export default router;
