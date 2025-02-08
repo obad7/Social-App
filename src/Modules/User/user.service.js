@@ -5,6 +5,7 @@ import { encrypt, decrypt } from "../../utils/encryption/encryption.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
 import path from "path";
 import fs from "fs";
+import cloudinary from "../../utils/file uploading/cloudinaryConfig.js";
 
 export const getProfile = async (req, res, next) => {
 
@@ -207,6 +208,30 @@ export const deleteprofilePicture = async (req, res, next) => {
     fs.unlinkSync(imagePath);
     user.image = defultImage;
 
+    await user.save();
+
+    return res.status(200).json({ 
+        success: true,
+        data: { user },
+    });
+};
+
+// cloud storage
+
+export const uploadImageOnCloud = async (req, res, next) => { 
+    const user = await dbService.findById({
+        model: UserModel,
+        id: { _id: req.user._id},
+    });
+
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+        req.file.path, 
+        { 
+            folder: `users/${user._id}/profilePicture`,
+        }
+    );
+
+    user.image = { secure_url, public_id };
     await user.save();
 
     return res.status(200).json({ 

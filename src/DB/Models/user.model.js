@@ -47,6 +47,16 @@ const userSchema = new Schema(
             default: roleType.User,
         },
 
+        // Cloud Storage
+        image: {
+            secure_url: String,
+            public_id: String
+        },
+
+        // Disk Storage
+        // image: { type: String, default: defultImage },
+        // coverImages: [String],
+
         confirmEmail: { type: Boolean, default: false },
         isDeleted: { type: Boolean, default: false },
         changeCredentials: Date,
@@ -55,8 +65,6 @@ const userSchema = new Schema(
         phone: String,
         address: String,
         DOB: Date,
-        image: { type: String, default: defultImage },
-        coverImages: [String],
 
         emailResendCount: { type: Number, default: 0 },
         emailResendCooldown: Date,

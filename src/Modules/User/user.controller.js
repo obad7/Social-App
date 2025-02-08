@@ -5,6 +5,7 @@ import { asyncHandler } from "../../utils/error handling/asyncHandler.js";
 import * as userValidation from "./user.validation.js"
 import { validation } from "../../Middlewares/validation.middleware.js";
 import { fileValidation, upload } from "../../utils/file uploading/multerUpload.js";
+import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
 
 const router = Router();
 
@@ -50,6 +51,8 @@ router.patch(
     asyncHandler(userService.updatePassword)
 );
 
+// Disk Storage
+
 router.post(
     "/profilePicture",
     authentication(),
@@ -71,5 +74,13 @@ router.delete(
     asyncHandler(userService.deleteprofilePicture)
 );
 
+// Cloud Storage
+
+router.post(
+    "/uploadPictureOnCloud",
+    authentication(),
+    uploadOnCloud().single("image"),
+    asyncHandler(userService.uploadImageOnCloud)
+);
 
 export default router;
