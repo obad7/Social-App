@@ -1,7 +1,8 @@
 import connectDB from "./DB/connection.js";
-import authController from "./Modules/Auth/auth.controller.js";
-import userController from "./Modules/User/user.controller.js";
-import {globalErrorHandler, notFoundHandler} from "./utils/error handling/globalErrorHandler.js";
+import authRouter from "./Modules/Auth/auth.controller.js";
+import userRouter from "./Modules/User/user.controller.js";
+import postRouter from "./Modules/Post/post.controller.js";
+import { globalErrorHandler, notFoundHandler } from "./utils/error handling/globalErrorHandler.js";
 import cors from "cors";
 
 const bootstrap = async (app, express) => {
@@ -13,8 +14,9 @@ const bootstrap = async (app, express) => {
     app.use("/uploads", express.static("uploads"));
     app.use(cors());
 
-    app.use("/auth", authController);
-    app.use("/user", userController);
+    app.use("/auth", authRouter);
+    app.use("/user", userRouter);
+    app.use("/post", postRouter);
 
     // 404
     app.all("*", notFoundHandler);
