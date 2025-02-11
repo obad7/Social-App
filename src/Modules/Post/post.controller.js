@@ -64,4 +64,11 @@ router.get(
     asyncHandler(postService.freezedPosts)
 );
 
+router.patch(
+    "/like_unlike/:postId",
+    authentication(),
+    allowTo(["User"]),
+    validation(postValidation.likeAndUnlikeSchema),
+    asyncHandler(postService.like_unlike)
+);
 export default router;

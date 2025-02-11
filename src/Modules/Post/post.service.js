@@ -169,3 +169,40 @@ export const freezedPosts = async (req, res, next) => {
     }
     return res.status(200).json({ success: true, date: { posts } });
 };
+
+
+export const like_unlike = async (req, res, next) => {
+    const { postId } = req.params;
+    const userId = req.user._id;
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: false },
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    // check if the user has already liked the post
+    const isLiked = post.likes.find(
+        (user) => user.toString() === userId.toString()
+    );
+
+    if (!isLiked) {
+        post.likes.push(userId);
+    } else {
+        post.likes = post.likes.filter(
+            (user) => user.toString() !== userId.toString()
+        );
+    }
+
+    await post.save();
+
+    const populatedUser = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: false },
+        populate: {
+            path: "likes",
+            select: "userName image -_id",
+        }
+    })
+    return res.status(200).json({ success: true, date: { populatedUser } });
+};

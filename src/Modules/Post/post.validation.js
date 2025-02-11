@@ -25,3 +25,7 @@ export const getSinglePostSchema = joi.object({
     postId: generalFaileds.id.required(),
 });
 
+export const likeAndUnlikeSchema = joi.object({
+    postId: generalFaileds.id.required(),
+});
+
