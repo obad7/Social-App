@@ -8,9 +8,12 @@ export const isValidObjectId = (value, helper) => {
 };
 
 
-export const validation = (schema) =>{
+export const validation = (schema) => {
     return (req, res, next) => {
         const data = { ...req.body, ...req.params, ...req.query };
+        if (req.file || req.files?.length) {
+            data.file = req.file || req.files;
+        }
         const results = schema.validate(data, { abortEarly: false });
         if (results.error) {
             const errorMessage = results.error.details.map((obj) => obj.message);
@@ -26,8 +29,8 @@ export const generalFaileds = {
     email: joi
         .string()
         .email({
-            minDomainSegments: 2, 
-            maxDomainSegments: 2, 
+            minDomainSegments: 2,
+            maxDomainSegments: 2,
             tlds: { allow: ["com", "net"] }
         }),
     password: joi.string(),
@@ -38,4 +41,14 @@ export const generalFaileds = {
     gender: joi.string().valid(...Object.values(genderType)),
     address: joi.string(),
     phone: joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/)),
+    fileObject: {
+        fieldname: joi.string().valid("images").required(),
+        originalname: joi.string().required(),
+        encoding: joi.string().required(),
+        mimetype: joi.string().required(),
+        size: joi.number().required(),
+        destination: joi.string().required(),
+        filename: joi.string().required(),
+        path: joi.string().required(),
+    }
 }

@@ -9,9 +9,11 @@ import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
 const router = Router();
 
 router.post(
-    "/create",
+    "/createPost",
     authentication(),
-    allowTo(["User", "Admin"]),
+    allowTo(["User"]),
+    uploadOnCloud().array("images", 5),
+    validation(postValidation.createPostSchema),
     asyncHandler(postService.createPost)
 );
 

@@ -37,6 +37,11 @@ const postSchema = new Schema(
             type: Boolean,
             default: false
         },
+
+        customId: {
+            type: String,
+            unique: true,
+        }
     },
     { timestamps: true }
 );
