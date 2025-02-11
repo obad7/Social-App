@@ -112,3 +112,20 @@ export const restorePost = async (req, res, next) => {
 
     return res.status(200).json({ success: true, date: { post } });
 };
+
+
+export const getSinglePost = async (req, res, next) => {
+    const { postId } = req.params;
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: false },
+        populate: {
+            path: "createdBy",
+            select: "userName image -_id",
+        }
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    return res.status(200).json({ success: true, date: { post } });
+}

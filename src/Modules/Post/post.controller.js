@@ -42,4 +42,12 @@ router.patch(
     asyncHandler(postService.restorePost)
 );
 
+router.get(
+    "/:postId",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    validation(postValidation.getSinglePostSchema),
+    asyncHandler(postService.getSinglePost)
+);
+
 export default router;

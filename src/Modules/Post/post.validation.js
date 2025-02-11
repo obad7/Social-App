@@ -21,3 +21,7 @@ export const restorePostSchema = joi.object({
     postId: generalFaileds.id.required(),
 });
 
+export const getSinglePostSchema = joi.object({
+    postId: generalFaileds.id.required(),
+});
+
