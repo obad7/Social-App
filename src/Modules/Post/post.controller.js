@@ -43,11 +43,25 @@ router.patch(
 );
 
 router.get(
-    "/:postId",
+    "/getSinglePost/:postId",
     authentication(),
     allowTo(["User", "Admin"]),
     validation(postValidation.getSinglePostSchema),
     asyncHandler(postService.getSinglePost)
+);
+
+router.get(
+    "/activePosts",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    asyncHandler(postService.activePosts)
+);
+
+router.get(
+    "/freezedPosts",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    asyncHandler(postService.freezedPosts)
 );
 
 export default router;
