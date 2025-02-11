@@ -41,17 +41,51 @@ export const createPost = async (req, res, next) => {
 
 
 export const updatePost = async (req, res, next) => {
+    const { content } = req.body;
+    const { postId } = req.params;
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, createdBy: req.user._id },
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    // update post images if images are provided
+    const allImages = [];
+    if (req.files.length) {
+        // create new images
+        for (const file of req.files) {
+            // delete old images
+            for (const file of post.images) {
+                await cloudinary.uploader.destroy(file.public_id);
+            }
+            // upload new images
+            const { secure_url, public_id } = await cloudinary.uploader.upload(
+                file.path,
+                { folder: `posts/${req.user._id}/post/${post.customId}` }
+            );
+            allImages.push({ secure_url, public_id });
+        }
+        post.images = allImages;
+    };
+
+    // update post content if content is provided
+    post.content = content ? content : post.content;
+    await post.save();
+
     return res.status(200).json({
         success: true,
-        message: "Post created successfully",
+        date: { post },
     });
 };
 
 
 export const softDelete = async (req, res, next) => {
+
+
     return res.status(200).json({
         success: true,
-        message: "Post created successfully",
+        date: { post },
     });
 };
 

@@ -6,3 +6,13 @@ export const createPostSchema = joi.object({
     file: joi.array().items(joi.object(generalFaileds.fileObject)),
 }).or('content', 'file');
 // (or) is a joi method that allows you to specify that at least one of the fields must be present
+
+export const updatePostSchema = joi.object({
+    postId: generalFaileds.id.required(),
+    content: joi.string().min(2).max(5000),
+    file: joi.array().items(joi.object(generalFaileds.fileObject)),
+}).or('content', 'file');
+
+export const softDeletePostSchema = joi.object({
+    postId: generalFaileds.id.required(),
+});
