@@ -1,10 +1,6 @@
 import * as dbService from "../../DB/dbService.js";
 import { PostModel } from "../../DB/Models/post.model.js";
-import { emailEmitter } from "../../utils/emails/emailEvents.js";
-import { encrypt, decrypt } from "../../utils/encryption/encryption.js";
-import { hash, compareHash } from "../../utils/hashing/hash.js";
-import path from "path";
-import fs from "fs";
+import { roleType } from "../../DB/Models/user.model.js";
 import cloudinary from "../../utils/file uploading/cloudinaryConfig.js";
 import { nanoid } from "nanoid";
 
@@ -81,18 +77,38 @@ export const updatePost = async (req, res, next) => {
 
 
 export const softDelete = async (req, res, next) => {
+    const { postId } = req.params;
 
+    const post = await dbService.findById({ model: PostModel, id: postId });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
 
-    return res.status(200).json({
-        success: true,
-        date: { post },
-    });
+    // check if the user is authorized to delete the post
+    if (post.createdBy.toString() === req.user._id.toString() ||
+        req.user.role === roleType.Admin
+    ) {
+        post.isDeleted = true;
+        post.deletedBy = req.user._id;
+        await post.save();
+        return res.status(200).json({ success: true, date: { post } });
+    } else {
+        return next(new Error("unauthorized", { cause: 403 }));
+    }
 };
 
 
-export const getPost = async (req, res, next) => {
-    return res.status(200).json({
-        success: true,
-        message: "Post created successfully",
+export const restorePost = async (req, res, next) => {
+    const { postId } = req.params;
+
+    const post = await dbService.findOneAndUpdate({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: true, deletedBy: req.user._id },
+        data: {
+            isDeleted: false,
+            $unset: { deletedBy: "" }
+        },
+        options: { new: true },
     });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    return res.status(200).json({ success: true, date: { post } });
 };

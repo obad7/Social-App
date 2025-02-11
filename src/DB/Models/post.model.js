@@ -23,7 +23,7 @@ const postSchema = new Schema(
             required: true
         },
 
-        deleted: {
+        deletedBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
         },

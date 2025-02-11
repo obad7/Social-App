@@ -30,9 +30,16 @@ router.patch(
     "/softDelete/:postId",
     authentication(),
     allowTo(["User", "Admin"]),
-    uploadOnCloud().array("images", 5),
     validation(postValidation.softDeletePostSchema),
     asyncHandler(postService.softDelete)
+);
+
+router.patch(
+    "/restorePost/:postId",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    validation(postValidation.restorePostSchema),
+    asyncHandler(postService.restorePost)
 );
 
 export default router;

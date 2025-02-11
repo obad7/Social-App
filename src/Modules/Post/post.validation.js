@@ -16,3 +16,8 @@ export const updatePostSchema = joi.object({
 export const softDeletePostSchema = joi.object({
     postId: generalFaileds.id.required(),
 });
+
+export const restorePostSchema = joi.object({
+    postId: generalFaileds.id.required(),
+});
+
