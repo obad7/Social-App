@@ -1,25 +1,31 @@
 import mongoose, { Schema, model, Types } from "mongoose";
 
-const postSchema = new Schema(
+const commentSchema = new Schema(
     {
-        content: {
+        text: {
             type: String,
-            minLength: 2,
-            maxLength: 5000,
+            minLength: [2, "Comment must be at least 3 characters long"],
+            maxLength: [5000, "Comment must be at most 5000 characters long"],
             trim: true,
             required: function () {
-                return this.images?.length ? false : true;
+                return this.image?.length ? false : true;
             }
         },
 
-        images: [{
+        image: {
             secure_url: String,
             public_id: String
-        }],
+        },
 
         createdBy: {
             type: Schema.Types.ObjectId,
             ref: "User",
+            required: true
+        },
+
+        postId: {
+            type: Schema.Types.ObjectId,
+            ref: "Post",
             required: true
         },
 
@@ -37,13 +43,8 @@ const postSchema = new Schema(
             type: Boolean,
             default: false
         },
-
-        customId: {
-            type: String,
-            unique: true,
-        }
     },
     { timestamps: true }
 );
 
-export const PostModel = mongoose.model.Post || model("Post", postSchema);
+export const CommentModel = mongoose.model.Comment || model("Comment", commentSchema);
