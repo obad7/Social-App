@@ -12,3 +12,7 @@ export const updateCommentSchema = joi.object({
     file: joi.object(generalFaileds.fileObject),
     commentId: generalFaileds.id.required(),
 }).or('text', 'file');
+
+export const softDeleteCommentSchema = joi.object({
+    commentId: generalFaileds.id.required(),
+}).required();

@@ -25,5 +25,13 @@ router.patch(
     asyncHandler(commentService.updateComment)
 );
 
+router.patch(
+    "/softDelete/:commentId",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    validation(commentValidation.softDeleteCommentSchema),
+    asyncHandler(commentService.softDeleteComment)
+);
+
 
 export default router;
