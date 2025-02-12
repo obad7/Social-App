@@ -5,8 +5,11 @@ import * as postService from "./post.service.js";
 import * as postValidation from "./post.validation.js"
 import { validation } from "../../Middlewares/validation.middleware.js";
 import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
+import commentRouter from "../Comment/comment.controller.js";
 
 const router = Router();
+
+router.use("/:postId/comment", commentRouter);
 
 router.post(
     "/createPost",

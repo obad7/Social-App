@@ -4,12 +4,14 @@ import * as commentValidation from "./comment.validation.js"
 import { asyncHandler } from "../../utils/error handling/asyncHandler.js";
 import { validation } from "../../Middlewares/validation.middleware.js";
 import { allowTo, authentication } from './../../Middlewares/auth.middleware.js';
-const router = Router();
+import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
+const router = Router({ mergeParams: true });
 
 router.post(
-    "/createComment",
+    "/",
     authentication(),
     allowTo(["User"]),
+    uploadOnCloud().single("image"),
     validation(commentValidation.createCommentSchema),
     asyncHandler(commentService.createComment)
 );

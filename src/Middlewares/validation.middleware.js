@@ -42,7 +42,7 @@ export const generalFaileds = {
     address: joi.string(),
     phone: joi.string().pattern(new RegExp(/^(002|\+2)?01[0125][0-9]{8}$/)),
     fileObject: {
-        fieldname: joi.string().valid("images").required(),
+        fieldname: joi.string().required(),
         originalname: joi.string().required(),
         encoding: joi.string().required(),
         mimetype: joi.string().required(),
