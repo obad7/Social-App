@@ -10,8 +10,8 @@ export const createComment = async (req, res, next) => {
     const post = await dbService.findById({ model: PostModel, id: postId });
     if (!post) return next(new Error("Post not found", { cause: 404 }));
 
-    let image;
     // check if image is provided and upload it to cloudinary
+    let image;
     if (req.file) {
         const { secure_url, public_id } = await cloudinary.uploader.upload(
             req.file.path,
@@ -29,6 +29,50 @@ export const createComment = async (req, res, next) => {
             image,
         },
     });
+
+    return res.status(200).json({
+        success: true,
+        date: { comment },
+    });
+};
+
+
+export const updateComment = async (req, res, next) => {
+    const { commentId } = req.params;
+    const { text } = req.body;
+
+    const comment = await dbService.findById({ model: CommentModel, id: commentId });
+    if (!comment) return next(new Error("Comment not found", { cause: 404 }));
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: comment.postId, isDeleted: false }
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    // check if the user is authorized to update the comment
+    if (comment.createdBy.toString() !== req.user._id.toString()) {
+        return next(new Error("unauthorized", { cause: 401 }))
+    }
+
+    // check if image is provided and upload it to cloudinary
+    let image;
+    if (req.file) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(
+            req.file.path,
+            { folder: `posts/${post.createdBy}/post/${post.customId}/comments` }
+        );
+        image = { secure_url, public_id };
+        // delete old image
+        if (comment.image) {
+            await cloudinary.uploader.destroy(comment.image.public_id);
+        }
+        comment.image = image;
+    }
+
+    // update comment text if text is provided
+    comment.text = text ? text : comment.text;
+    await comment.save();
 
     return res.status(200).json({
         success: true,

@@ -16,5 +16,14 @@ router.post(
     asyncHandler(commentService.createComment)
 );
 
+router.patch(
+    "/:commentId",
+    authentication(),
+    allowTo(["User"]),
+    uploadOnCloud().single("image"),
+    validation(commentValidation.updateCommentSchema),
+    asyncHandler(commentService.updateComment)
+);
+
 
 export default router;
