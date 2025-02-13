@@ -1,5 +1,6 @@
 import * as dbService from "../../DB/dbService.js";
 import { PostModel } from "../../DB/Models/post.model.js";
+import { CommentModel } from '../../DB/Models/comment.model.js';
 import { roleType } from "../../DB/Models/user.model.js";
 import cloudinary from "../../utils/file uploading/cloudinaryConfig.js";
 import { nanoid } from "nanoid";
@@ -120,10 +121,10 @@ export const getSinglePost = async (req, res, next) => {
     const post = await dbService.findOne({
         model: PostModel,
         filter: { _id: postId, isDeleted: false },
-        populate: {
-            path: "createdBy",
-            select: "userName image -_id",
-        }
+        populate: [
+            { path: "createdBy", select: "userName image -_id" },
+            { path: "comments", select: "text image -_id" }
+        ]
     });
     if (!post) return next(new Error("Post not found", { cause: 404 }));
 
@@ -132,42 +133,91 @@ export const getSinglePost = async (req, res, next) => {
 
 
 export const activePosts = async (req, res, next) => {
-    let posts;
 
-    if (req.user.role === roleType.Admin) {
-        posts = await dbService.find({
-            model: PostModel,
-            filter: { isDeleted: false },
-            populate: { path: "createdBy", select: "userName image -_id" }
+    // 1
+    // if (req.user.role === roleType.Admin) {
+    //     posts = await dbService.find({
+    //         model: PostModel,
+    //         filter: { isDeleted: false },
+    //         populate: { path: "createdBy", select: "userName image -_id" }
+    //     });
+    // } else {
+    //     posts = await dbService.find({
+    //         model: PostModel,
+    //         filter: { isDeleted: false, createdBy: req.user._id },
+    //         populate: { path: "createdBy", select: "userName image -_id" }
+    //     });
+    // }
+
+    // 2
+    // posts = await dbService.find({
+    //     model: PostModel,
+    //     filter: { isDeleted: false },
+    //     populate: { path: "createdBy", select: "userName image -_id" }
+    // });
+
+    // // add comments to each post
+    // let results = [];
+    // for (const post of posts) {
+    //     const comments = await dbService.find({
+    //         model: CommentModel,
+    //         filter: { postId: post._id, isDeleted: false },
+    //         select: "text image -_id"
+    //     });
+    //     results.push({ post, comments });
+    // }
+
+    const cursor = await PostModel.find({ isDeleted: false }).cursor();
+    let results = [];
+    for (
+        let post = await cursor.next();
+        post != null;
+        post = await cursor.next()
+    ) {
+        const comments = await dbService.find({
+            model: CommentModel,
+            filter: { postId: post._id, isDeleted: false },
+            select: "text image -_id"
         });
-    } else {
-        posts = await dbService.find({
-            model: PostModel,
-            filter: { isDeleted: false, createdBy: req.user._id },
-            populate: { path: "createdBy", select: "userName image -_id" }
-        });
+        results.push({ post, comments });
     }
-    return res.status(200).json({ success: true, date: { posts } });
+    return res.status(200).json({ success: true, date: { results } });
 };
 
 
 export const freezedPosts = async (req, res, next) => {
-    let posts;
+    // let posts;
 
-    if (req.user.role === roleType.Admin) {
-        posts = await dbService.find({
-            model: PostModel,
-            filter: { isDeleted: true },
-            populate: { path: "createdBy", select: "userName image -_id" }
+    // if (req.user.role === roleType.Admin) {
+    //     posts = await dbService.find({
+    //         model: PostModel,
+    //         filter: { isDeleted: true },
+    //         populate: { path: "createdBy", select: "userName image -_id" }
+    //     });
+    // } else {
+    //     posts = await dbService.find({
+    //         model: PostModel,
+    //         filter: { isDeleted: true, createdBy: req.user._id },
+    //         populate: { path: "createdBy", select: "userName image -_id" }
+    //     });
+    // }
+    // return res.status(200).json({ success: true, date: { posts } });
+
+    const cursor = await PostModel.find({ isDeleted: true }).cursor();
+    let results = [];
+    for (
+        let post = await cursor.next();
+        post != null;
+        post = await cursor.next()
+    ) {
+        const comments = await dbService.find({
+            model: CommentModel,
+            filter: { postId: post._id, isDeleted: false },
+            select: "text image -_id"
         });
-    } else {
-        posts = await dbService.find({
-            model: PostModel,
-            filter: { isDeleted: true, createdBy: req.user._id },
-            populate: { path: "createdBy", select: "userName image -_id" }
-        });
+        results.push({ post, comments });
     }
-    return res.status(200).json({ success: true, date: { posts } });
+    return res.status(200).json({ success: true, date: { results } });
 };
 
 

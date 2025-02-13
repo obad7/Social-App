@@ -114,3 +114,23 @@ export const softDeleteComment = async (req, res, next) => {
         date: { comment },
     });
 };
+
+
+export const getAllComments = async (req, res, next) => {
+    const { postId } = req.params;
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: false }
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    const comments = await dbService.find({
+        model: CommentModel,
+        filter: { postId, isDeleted: false },
+    });
+
+    return res.status(200).json({
+        success: true,
+        date: { comments },
+    });
+};

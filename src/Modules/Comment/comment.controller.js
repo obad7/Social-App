@@ -7,6 +7,8 @@ import { allowTo, authentication } from './../../Middlewares/auth.middleware.js'
 import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
 const router = Router({ mergeParams: true });
 
+// mergeParams
+// post/:postId/comment
 router.post(
     "/",
     authentication(),
@@ -31,6 +33,16 @@ router.patch(
     allowTo(["User", "Admin"]),
     validation(commentValidation.softDeleteCommentSchema),
     asyncHandler(commentService.softDeleteComment)
+);
+
+// mergeParams
+// post/:postId/comment
+router.get(
+    "/",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    validation(commentValidation.getAllCommentsSchema),
+    asyncHandler(commentService.getAllComments)
 );
 
 

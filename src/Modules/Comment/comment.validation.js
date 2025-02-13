@@ -16,3 +16,7 @@ export const updateCommentSchema = joi.object({
 export const softDeleteCommentSchema = joi.object({
     commentId: generalFaileds.id.required(),
 }).required();
+
+export const getAllCommentsSchema = joi.object({
+    postId: generalFaileds.id.required(),
+}).required();
