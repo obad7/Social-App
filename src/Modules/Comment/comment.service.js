@@ -134,3 +134,31 @@ export const getAllComments = async (req, res, next) => {
         date: { comments },
     });
 };
+
+
+export const like_unlike = async (req, res, next) => {
+    const { commentId } = req.params;
+    const userId = req.user._id;
+
+    const comment = await dbService.findOne({
+        model: CommentModel,
+        filter: { _id: commentId, isDeleted: false },
+    });
+    if (!comment) return next(new Error("Comment not found", { cause: 404 }));
+    // post
+    // check if the user has already liked the post
+    const isLiked = comment.likes.find(
+        (user) => user.toString() === userId.toString()
+    );
+
+    if (!isLiked) {
+        comment.likes.push(userId);
+    } else {
+        comment.likes = comment.likes.filter(
+            (user) => user.toString() !== userId.toString()
+        );
+    }
+
+    await comment.save();
+    return res.status(200).json({ success: true, date: { comment } });
+};

@@ -20,3 +20,7 @@ export const softDeleteCommentSchema = joi.object({
 export const getAllCommentsSchema = joi.object({
     postId: generalFaileds.id.required(),
 }).required();
+
+export const likeAndUnlikeSchema = joi.object({
+    commentId: generalFaileds.id.required(),
+}).required();

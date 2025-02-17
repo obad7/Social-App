@@ -46,4 +46,13 @@ router.get(
 );
 
 
+router.patch(
+    "/like_unlike/:commentId",
+    authentication(),
+    allowTo(["User"]),
+    validation(commentValidation.likeAndUnlikeSchema),
+    asyncHandler(commentService.like_unlike)
+);
+
+
 export default router;
