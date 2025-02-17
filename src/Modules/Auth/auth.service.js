@@ -9,27 +9,25 @@ export const register = async (req, res, next) => {
     const { userName, email, password } = req.body;
 
     const user = await dbService.findOne({ model: UserModel, filter: { email } });
-    if (user) {return next(new Error("User already exists", { cause: 400 }))}
-
-    const hashedPassword = hash({ plainText: password });
+    if (user) { return next(new Error("User already exists", { cause: 400 })) }
 
     // set changeCredentials to expire in 3 minutes
     const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
 
-    const newUser = await dbService.create({ 
-        model: UserModel, 
-        data: { 
-            userName, 
-            email, 
-            password : hashedPassword,
+    const newUser = await dbService.create({
+        model: UserModel,
+        data: {
+            userName,
+            email,
+            password: password,
             changeCredentials: expirationTime,
-        } 
+        }
     });
 
     const findNewUser = await dbService.findOne({ model: UserModel, filter: { email } });
     emailEmitter.emit("sendEmail", userName, email, findNewUser._id);
 
-    return res.status(200).json({ 
+    return res.status(200).json({
         success: true,
         message: newUser,
     });
@@ -40,21 +38,21 @@ export const confirmEmail = async (req, res, next) => {
     const { email, code } = req.body;
 
     const user = await dbService.findOne({ model: UserModel, filter: { email } });
-    if (!user) {return next(new Error("User not found", { cause: 400 }))}
+    if (!user) { return next(new Error("User not found", { cause: 400 })) }
 
-    if (user.confirmEmailOTP == true) {return next(new Error("Email already confirmed", { cause: 400 }))}
+    if (user.confirmEmailOTP == true) { return next(new Error("Email already confirmed", { cause: 400 })) }
 
     // check if the code has expired
-    if (new Date() > user.changeCredentials) 
+    if (new Date() > user.changeCredentials)
         return next(new Error("code has expired, resend email", { cause: 400 }));
 
     if (!compareHash({ plainText: code, hash: user.confirmEmailOTP }))
         return next(new Error("Invalid code", { cause: 400 }))
 
-    await dbService.updateOne({ 
-        model: UserModel, 
-        filter: { email }, 
-        data: { 
+    await dbService.updateOne({
+        model: UserModel,
+        filter: { email },
+        data: {
             confirmEmail: true,
             $unset: {
                 confirmEmailOTP: "",
@@ -62,10 +60,10 @@ export const confirmEmail = async (req, res, next) => {
                 emailResendCount: "",
                 emailResendCooldown: "",
             }
-        } 
+        }
     });
 
-    return res.status(200).json({ 
+    return res.status(200).json({
         success: true,
         message: "Email confirmed successfully",
     });
@@ -102,14 +100,14 @@ export const resendEmail = async (req, res, next) => {
     // Emit email event and update the user
     emailEmitter.emit("sendEmail", user.email, user.userName, user._id);
 
-    await dbService.updateOne({ 
-        model: UserModel, 
-        filter: { email }, 
-        data: { 
+    await dbService.updateOne({
+        model: UserModel,
+        filter: { email },
+        data: {
             emailResendCount: updatedResendCount,
             emailResendCooldown: newCooldown,
             changeCredentials: expirationTime,
-        } 
+        }
     });
 
     return res.status(200).json({
@@ -134,8 +132,8 @@ export const login = async (req, res, next) => {
         payload: { id: user._id },
         signature:
             user.role === roleType.User
-            ? process.env.USER_ACCESS_TOKEN
-            : process.env.ADMIN_ACCESS_TOKEN,
+                ? process.env.USER_ACCESS_TOKEN
+                : process.env.ADMIN_ACCESS_TOKEN,
         options: { expiresIn: process.env.ACCSESS_TOKEN_EXPIRES },
     });
 
@@ -143,16 +141,16 @@ export const login = async (req, res, next) => {
         payload: { id: user._id },
         signature:
             user.role === roleType.User
-            ? process.env.USER_REFRESH_TOKEN
-            : process.env.ADMIN_REFRESH_TOKEN,
+                ? process.env.USER_REFRESH_TOKEN
+                : process.env.ADMIN_REFRESH_TOKEN,
         options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES },
     });
 
     return res.status(200).json({
         success: true,
-        tokens: { 
-            accessToken: sccessToken, 
-            refreshToken : refreshToken,
+        tokens: {
+            accessToken: sccessToken,
+            refreshToken: refreshToken,
         },
     });
 };
@@ -160,33 +158,33 @@ export const login = async (req, res, next) => {
 export const refresh_token = async (req, res, next) => {
     const { authorization } = req.headers;
 
-    const user = await decodedToken({ 
-        authorization: authorization, 
-        tokenType: tokenTypes.refresh, 
-        next: next 
+    const user = await decodedToken({
+        authorization: authorization,
+        tokenType: tokenTypes.refresh,
+        next: next
     });
 
     const sccessToken = generateToken({
         payload: { id: user._id },
         signature:
             user.role === roleType.User
-            ? process.env.USER_ACCESS_TOKEN
-            : process.env.ADMIN_ACCESS_TOKEN
+                ? process.env.USER_ACCESS_TOKEN
+                : process.env.ADMIN_ACCESS_TOKEN
     });
 
     const refreshToken = generateToken({
         payload: { id: user._id },
         signature:
             user.role === roleType.User
-            ? process.env.USER_REFRESH_TOKEN
-            : process.env.ADMIN_REFRESH_TOKEN
+                ? process.env.USER_REFRESH_TOKEN
+                : process.env.ADMIN_REFRESH_TOKEN
     });
 
     return res.status(200).json({
         success: true,
-        tokens: { 
-            accessToken: sccessToken, 
-            refreshToken : refreshToken,
+        tokens: {
+            accessToken: sccessToken,
+            refreshToken: refreshToken,
         },
     });
 };
@@ -213,21 +211,19 @@ export const resetPassword = async (req, res, next) => {
     const user = await dbService.findOne({ model: UserModel, filter: { email, isDeleted: false } });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
-    if (!compareHash ({ plainText: code, hash: user.forgetPasswordOTP }))
+    if (!compareHash({ plainText: code, hash: user.forgetPasswordOTP }))
         return next(new Error("Invalid code", { cause: 400 }));
 
-    const hashedPassword = hash({ plainText: password });
-
-    await dbService.updateOne({ 
-        model: UserModel, 
-        filter: { email }, 
-        data: { 
-            password: hashedPassword, 
-            $unset: { forgetPasswordOTP: "" } 
-        } 
+    await dbService.updateOne({
+        model: UserModel,
+        filter: { email },
+        data: {
+            password: password,
+            $unset: { forgetPasswordOTP: "" }
+        }
     });
 
-    
+
     return res.status(200).json({
         success: true,
         message: "Password reseted successfully",

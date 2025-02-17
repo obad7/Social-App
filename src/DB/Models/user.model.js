@@ -1,4 +1,5 @@
 import mongoose, { Schema, model, Types } from "mongoose";
+import { hash } from "../../utils/hashing/hash.js";
 
 export const roleType = {
     Admin: "Admin",
@@ -14,9 +15,9 @@ export const genderType = {
 export const defultImage = "uploads\\Default_image.jpg";
 
 // Cloud Storage
-export const defultImageOnCloud = 
+export const defultImageOnCloud =
     "https://res.cloudinary.com/dt83ykbei/image/upload/v1738976103/Default_image_wykjm1.jpg";
-export const defultPublicId = 
+export const defultPublicId =
     "Default_image_pawsie";
 
 const userSchema = new Schema(
@@ -74,7 +75,7 @@ const userSchema = new Schema(
         isDeleted: { type: Boolean, default: false },
         changeCredentials: Date,
         confirmEmailOTP: String,
-        
+
         phone: String,
         address: String,
         DOB: Date,
@@ -87,14 +88,23 @@ const userSchema = new Schema(
             {
                 userId: { type: Types.ObjectId, ref: "User" },
                 time: Date,
-            }   
+            }
         ],
 
         tempEmail: String,
         tampEmailOTP: String,
-        
+
     },
     { timestamps: true }
 );
+
+// pre hook to hash password
+userSchema.pre("save", function (next) {
+    // if password is modified hash -> if not return next
+    if (this.isModified("password")) {
+        this.password = hash({ plainText: this.password })
+    }
+    return next();
+});
 
 export const UserModel = mongoose.model.User || model("User", userSchema);
