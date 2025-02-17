@@ -18,30 +18,35 @@ const commentSchema = new Schema(
         },
 
         createdBy: {
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "User",
             required: true
         },
 
         postId: {
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "Post",
             required: true
         },
 
         deletedBy: {
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "User",
         },
 
         likes: [{
-            type: Schema.Types.ObjectId,
+            type: Types.ObjectId,
             ref: "User",
         }],
 
         isDeleted: {
             type: Boolean,
             default: false
+        },
+
+        perantComment: {
+            type: Types.ObjectId,
+            ref: "Comment",
         },
     },
     { timestamps: true }

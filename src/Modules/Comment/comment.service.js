@@ -162,3 +162,48 @@ export const like_unlike = async (req, res, next) => {
     await comment.save();
     return res.status(200).json({ success: true, date: { comment } });
 };
+
+
+export const addReply = async (req, res, next) => {
+    const { postId, commentId } = req.params;
+    const { text } = req.body;
+
+    const comment = await dbService.findOne({
+        model: CommentModel,
+        filter: { _id: commentId, isDeleted: false },
+    });
+    if (!comment) return next(new Error("Comment not found", { cause: 404 }));
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: postId, isDeleted: false },
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    // check if image is provided and upload it to cloudinary
+    let image;
+    if (req.file) {
+        const { secure_url, public_id } = await cloudinary.uploader.upload(
+            req.file.path,
+            { folder: `posts/${post.createdBy}/post/${post.customId}/comments/${commentId}` }
+        );
+        image = { secure_url, public_id };
+    }
+
+    const reply = await dbService.create({
+        model: CommentModel,
+        data: {
+            text,
+            image,
+            createdBy: req.user._id,
+            postId: postId,
+            perantComment: commentId,
+        },
+    });
+
+    return res.status(201).json({
+        success: true,
+        date: { reply },
+    });
+};
+

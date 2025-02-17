@@ -122,8 +122,13 @@ export const getSinglePost = async (req, res, next) => {
         model: PostModel,
         filter: { _id: postId, isDeleted: false },
         populate: [
+            // multiple populate on the post
             { path: "createdBy", select: "userName image -_id" },
-            { path: "comments", select: "text image -_id" }
+            {
+                path: "comments", select: "text image -_id",
+                // nested populate on the comments
+                populate: { path: "createdBy", select: "userName image -_id" }
+            }
         ]
     });
     if (!post) return next(new Error("Post not found", { cause: 404 }));

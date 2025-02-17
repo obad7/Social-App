@@ -54,5 +54,16 @@ router.patch(
     asyncHandler(commentService.like_unlike)
 );
 
+// mergeParams
+// post/:postId/comment/:commentId
+router.post(
+    "/:commentId",
+    authentication(),
+    allowTo(["User"]),
+    uploadOnCloud().single("image"),
+    validation(commentValidation.addReplySchema),
+    asyncHandler(commentService.addReply)
+);
+
 
 export default router;
