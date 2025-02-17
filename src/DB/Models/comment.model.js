@@ -49,7 +49,13 @@ const commentSchema = new Schema(
             ref: "Comment",
         },
     },
-    { timestamps: true }
+    { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+commentSchema.virtual("replies", {
+    ref: "Comment",
+    localField: "_id",
+    foreignField: "perantComment",
+});
 
 export const CommentModel = mongoose.model.Comment || model("Comment", commentSchema);

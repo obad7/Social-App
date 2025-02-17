@@ -126,7 +126,8 @@ export const getAllComments = async (req, res, next) => {
 
     const comments = await dbService.find({
         model: CommentModel,
-        filter: { postId, isDeleted: false },
+        filter: { postId, isDeleted: false, perantComment: { $exists: false } },
+        populate: { path: "replies" }
     });
 
     return res.status(200).json({
