@@ -31,3 +31,7 @@ export const addReplySchema = joi.object({
     postId: generalFaileds.id.required(),
     commentId: generalFaileds.id.required(),
 }).or('text', 'file');
+
+export const deleteCommentSchema = joi.object({
+    commentId: generalFaileds.id.required(),
+}).required();

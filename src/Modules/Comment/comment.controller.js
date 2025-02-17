@@ -65,5 +65,13 @@ router.post(
     asyncHandler(commentService.addReply)
 );
 
+router.delete(
+    "/:commentId",
+    authentication(),
+    allowTo(["User", "Admin"]),
+    validation(commentValidation.deleteCommentSchema),
+    asyncHandler(commentService.hardDelete)
+);
+
 
 export default router;

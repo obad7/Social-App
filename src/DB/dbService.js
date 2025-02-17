@@ -1,6 +1,4 @@
-
-
-export const create = async ( { model, data = {} } ) => {
+export const create = async ({ model, data = {} }) => {
     const document = await model.create(data);
     return document;
 };
@@ -45,9 +43,9 @@ export const findOneAndUpdate = async ({
     populate = [],
 }) => {
     const document = await model
-    .findOneAndUpdate(filter, data, options)
-    .select(select)
-    .populate(populate);
+        .findOneAndUpdate(filter, data, options)
+        .select(select)
+        .populate(populate);
     return document;
 };
 
@@ -109,9 +107,9 @@ export const findOneAndDelete = async ({
     populate = [],
 }) => {
     const document = await model
-    .findOneAndDelete(filter)
-    .select(select)
-    .populate(populate);
+        .findOneAndDelete(filter)
+        .select(select)
+        .populate(populate);
     return document;
 };
 
@@ -140,7 +138,7 @@ export const findByIdAndDelete = async ({
     populate = [],
 }) => {
     const document = await model
-        .findByIdAndUpdate(id)
+        .findByIdAndDelete(id)
         .select(select)
         .populate(populate);
     return document;

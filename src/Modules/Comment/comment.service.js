@@ -208,3 +208,32 @@ export const addReply = async (req, res, next) => {
     });
 };
 
+
+export const hardDelete = async (req, res, next) => {
+    const { commentId } = req.params;
+
+    const comment = await dbService.findById({ model: CommentModel, id: commentId });
+    if (!comment) return next(new Error("Comment not found", { cause: 404 }));
+
+    const post = await dbService.findOne({
+        model: PostModel,
+        filter: { _id: comment.postId, isDeleted: false }
+    });
+    if (!post) return next(new Error("Post not found", { cause: 404 }));
+
+    // check if the user is authorized to delete the comment
+    const commentOwner = comment.createdBy.toString() === req.user._id.toString();
+    const postOwner = post.createdBy.toString() == req.user._id.toString();
+    const admin = req.user.role === roleType.Admin;
+    if (!(commentOwner || postOwner || admin)) {
+        return next(new Error("unauthorized", { cause: 401 }))
+    }
+
+    // delete comment with its replies
+    await comment.deleteOne();
+
+    return res.status(200).json({
+        success: true,
+        message: "Comment deleted successfully",
+    });
+};

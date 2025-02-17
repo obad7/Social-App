@@ -58,4 +58,25 @@ commentSchema.virtual("replies", {
     foreignField: "perantComment",
 });
 
+// delete one comment and delete its replies too (doc layer hook)
+// delete image if exists
+commentSchema.post(
+    "deleteOne",
+    { document: true, query: false },
+    async function (doc, next) {
+        if (doc.image.secure_url) {
+            await cloudinary.uploader.destroy(doc.image.public_id);
+        }
+
+        const replies = await this.constructor.find({ perantComment: doc._id });
+        if (replies.length > 0) {
+            for (const reply of replies) {
+                await reply.deleteOne();
+            }
+        }
+        return next();
+    }
+);
+
+
 export const CommentModel = mongoose.model.Comment || model("Comment", commentSchema);
