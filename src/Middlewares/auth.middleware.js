@@ -1,21 +1,21 @@
-import {UserModel} from "../DB/Models/user.model.js";
+import { UserModel } from "../DB/Models/user.model.js";
 import { asyncHandler } from "../utils/error handling/asyncHandler.js";
 import { verifyToken } from "../utils/token/token.js";
 import * as dbService from "../DB/dbService.js";
 
 export const tokenTypes = {
-    accsess : "accsess",
-    refresh : "refresh",
-}
+    access: "access",
+    refresh: "refresh",
+};
 
-export const decodedToken = async ({ 
-    authorization = "", 
-    tokenType = tokenTypes.accsess, 
+export const decodedToken = async ({
+    authorization = "",
+    tokenType = tokenTypes.access,
     next = {},
 }) => {
-    const [ bearer, token ] = authorization.split(" ") || [];
+    const [bearer, token] = authorization.split(" ") || [];
 
-    if (!bearer || !token) 
+    if (!bearer || !token)
         return next(new Error("Invalid token", { cause: 401 }));
 
     let ACCESS_SIGTATURE = undefined;
@@ -34,15 +34,15 @@ export const decodedToken = async ({
             break;
     }
 
-    const decoded = verifyToken({ 
-        token: token, 
-        signature: 
-            tokenTypes.accsess ? ACCESS_SIGTATURE : REFRESH_SIGTATURE,
+    const decoded = verifyToken({
+        token: token,
+        signature:
+            tokenType === tokenTypes.access ? ACCESS_SIGTATURE : REFRESH_SIGTATURE,
     });
 
-    const user = await dbService.findOne({ 
-        model: UserModel, 
-        filter: { _id: decoded.id, isDeleted: false } 
+    const user = await dbService.findOne({
+        model: UserModel,
+        filter: { _id: decoded.id, isDeleted: false }
     });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
@@ -53,9 +53,9 @@ export const decodedToken = async ({
 }
 
 export const authentication = () => {
-    return asyncHandler (async (req, res, next) => {
+    return asyncHandler(async (req, res, next) => {
         const { authorization } = req.headers;
-        req.user = await decodedToken({ 
+        req.user = await decodedToken({
             authorization: authorization,
             next: next,
         });
@@ -63,9 +63,9 @@ export const authentication = () => {
     });
 }
 
-export const allowTo = ( roles = [] ) => {
-    return asyncHandler (async (req, res, next) => {
-        if (!roles.includes(req.user.role)) 
+export const allowTo = (roles = []) => {
+    return asyncHandler(async (req, res, next) => {
+        if (!roles.includes(req.user.role))
             return next(new Error("You are not allowed to perform this action", { cause: 403 }));
         return next();
     })
