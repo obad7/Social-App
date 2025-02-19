@@ -50,7 +50,7 @@ src/
 - **JavaScript**: Programming language used for building the application.
 - **MongoDB**: NoSQL database for storing catalog data.
 - **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
-- **JWT (JSON Web Token)**: Token-based authentication for securing APIs
+- **JWT**: (JSON Web Token)**: Token-based authentication for securing APIs
 - **Joi**: Schema-based validation library for validating incoming requests.
 
 ## Install Dependencies:
@@ -68,6 +68,36 @@ MONGO_URI=mongodb://127.0.0.1:27017/SocialApp
 
 # Server port
 PORT=3000
+
+# hashing salt rounds
+SALT_ROUNDS = 
+
+# email service
+SMTP_HOST = smtp.gmail.com
+SMTP_PORT = 465
+SMTP_EMAIL = 
+SMTP_PASSWORD =
+
+# jwt secret
+USER_ACCESS_TOKEN =
+USER_REFRESH_TOKEN =
+
+ADMIN_ACCESS_TOKEN =
+ADMIN_REFRESH_TOKEN =
+
+ACCSESS_TOKEN_EXPIRES =
+REFRESH_TOKEN_EXPIRES =
+
+# encryption
+ENCRYPTION_KEY =
+
+# cloudinary
+CLOUDINARY_NAME =
+API_KEY =
+API_SECRET =
+
+# client ID for gmail login
+CLIENT_ID = "" 
 ```
 
 ---
