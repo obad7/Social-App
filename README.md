@@ -3,6 +3,18 @@ This is a [Express.js](https://expressjs.com/) Social Media Application designed
 It includes features for user authentication, profile management, and administrative controls. 
 The app uses various technologies and libraries to provide a seamless experience.
 
+---
+
+## Table of Contents
+
+- [Project Structure](#project-structure)
+- [Technologies Used](#technologies-used)
+- [Environment Variables](#environment-variables)
+- [Available Scripts](#available-scripts)
+- [API Endpoints](#api-endpoints)
+
+---
+
 ## Project Structure
 
 ```
@@ -29,6 +41,7 @@ src/
  │   ├── token/
  ├── app.server.js
 ```
+---
 
 ## Technologies Used
 
@@ -37,6 +50,7 @@ src/
 - **JavaScript**: Programming language used for building the application.
 - **MongoDB**: NoSQL database for storing catalog data.
 - **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
+- **JWT (JSON Web Token)**: Token-based authentication for securing APIs
 - **Joi**: Schema-based validation library for validating incoming requests.
 
 ## Install Dependencies:
@@ -100,6 +114,29 @@ npm run dev
 - **POST user/uploadPictureOnCloud**: Upload Profile Picture On Cloudinary.
 - **DELETE User/deleteImageOnCloud**: Delete Image From Cloudinary.
 
+### Post
+- **POST post/createPost**: Create Post.
+- **PATCH post/update/:postId**: Update Post.
+- **PATCH post/softDelete/:postId**: Soft Delete Post.
+- **PATCH post/restorePost/:postId**: Restore Post.
+- **GET post/getSinglePost/:postId**: Get Single Post.
+- **GET post/activePosts**: Get All Active Posts.
+- **GET post/freezedPosts**: Get All Freezed Posts.
+- **PATCH post/like_unlike/:postId**: Like & Unlike Post.
+
+### Comment
+- **POST post/:postId/comment**: Create Comment.
+- **PATCH comment/:commentId**: Update Comment.
+- **PATCH comment/softDelete/:commentId**: Soft Delete Comment.
+- **GET post/:postId/comment**: Get All Comments.
+- **PATCH comment/like_unlike/:commentId**: Like & Unlike Comment.
+- **POST post/:postId/comment/:commentId**: Reply On Comment.
+- **GET post/:postId/comment/:commentId**: Get All Replies.
+- **DELETE comment/:commentId**: Hard Delete Comment.
+
+### Admin
+- **GET admin/getAllPostsAndUsers**: Get All Users & Posts.
+- **PATCH admin/changeRole**: Change Role For Specific User.
 
 
 
