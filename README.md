@@ -50,7 +50,7 @@ src/
 - **JavaScript**: Programming language used for building the application.
 - **MongoDB**: NoSQL database for storing catalog data.
 - **Mongoose**: ODM (Object Data Modeling) library for MongoDB.
-- **JWT**: (JSON Web Token)**: Token-based authentication for securing APIs
+- **JWT**: Token-based authentication for securing APIs
 - **Joi**: Schema-based validation library for validating incoming requests.
 
 ## Install Dependencies:
@@ -103,10 +103,6 @@ CLIENT_ID = ""
 ---
 
 ## Available Scripts
-
-In the project directory, you can run the following scripts:
-
-### `npm run dev`
 
 Runs the application in development mode using **nodemon**. The server will restart upon changes.
 
