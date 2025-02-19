@@ -1,9 +1,70 @@
 import * as dbService from "../../DB/dbService.js";
-import { roleType, UserModel } from "../../DB/Models/user.model.js";
+import { roleType, UserModel, providersTypes } from "../../DB/Models/user.model.js";
 import { emailEmitter } from "../../utils/emails/emailEvents.js";
 import { hash, compareHash } from "../../utils/hashing/hash.js";
 import { generateToken } from "../../utils/token/token.js";
 import { tokenTypes, decodedToken } from "../../Middlewares/auth.middleware.js";
+import { OAuth2Client } from "google-auth-library";
+
+export const loginWithGmail = async (req, res, next) => {
+    const { idToken } = req.body;
+    const client = new OAuth2Client();
+    async function verify() {
+        const ticket = await client.verifyIdToken({
+            idToken,
+            audience: process.env.CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        return payload;
+    }
+    const { name, email, picture, email_verified } = await verify();
+
+    if (!email_verified) return next(new Error("Email is not verified", { cause: 400 }));
+
+    let user = await dbService.findOne({ model: UserModel, filter: { email } });
+
+    // if user is already exists
+    if (user?.providers === providersTypes.System)
+        return next(new Error("User already exists", { cause: 400 }));
+
+    // if user is not exists
+    if (!user) {
+        user = await dbService.create({
+            model: UserModel,
+            data: {
+                userName: name,
+                email,
+                image: picture,
+                confirmEmail: email_verified,
+                providers: providersTypes.Google,
+            },
+        });
+    }
+
+    const sccessToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.User
+                ? process.env.USER_ACCESS_TOKEN
+                : process.env.ADMIN_ACCESS_TOKEN,
+        options: { expiresIn: process.env.ACCSESS_TOKEN_EXPIRES },
+    });
+
+    const refreshToken = generateToken({
+        payload: { id: user._id },
+        signature:
+            user.role === roleType.User
+                ? process.env.USER_REFRESH_TOKEN
+                : process.env.ADMIN_REFRESH_TOKEN,
+        options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRES },
+    });
+
+    return res.status(200).json({
+        success: true,
+        tokens: { accessToken: sccessToken, refreshToken: refreshToken }
+    });
+}
+
 
 export const register = async (req, res, next) => {
     const { userName, email, password } = req.body;

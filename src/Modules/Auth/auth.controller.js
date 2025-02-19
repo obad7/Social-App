@@ -52,5 +52,10 @@ router.patch(
     asyncHandler(authService.resetPassword)
 );
 
+router.get(
+    "/loginWithGmail",
+    asyncHandler(authService.loginWithGmail)
+);
+
 
 export default router;

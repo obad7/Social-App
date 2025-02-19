@@ -11,6 +11,12 @@ export const genderType = {
     Female: "Female"
 };
 
+// ProvidersTypes to login with social media or system
+export const providersTypes = {
+    System: "System",
+    Google: "Google",
+};
+
 // Disk Storage
 export const defultImage = "uploads\\Default_image.jpg";
 
@@ -40,7 +46,6 @@ const userSchema = new Schema(
 
         password: {
             type: String,
-            required: true
         },
 
         gender: {
@@ -70,6 +75,12 @@ const userSchema = new Schema(
         // Disk Storage
         // image: { type: String, default: defultImage },
         // coverImages: [String],
+
+        providers: {
+            type: String,
+            enum: Object.values(providersTypes),
+            default: providersTypes.System,
+        },
 
         confirmEmail: { type: Boolean, default: false },
         isDeleted: { type: Boolean, default: false },
