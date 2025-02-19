@@ -50,6 +50,25 @@ const postSchema = new Schema(
     }
 );
 
+// pagination
+postSchema.query.paginate = async function (page) {
+    page = page ? page : 1;
+    const limit = 4;
+    const skip = limit * (page - 1)
+
+    const data = await this.skip(skip).limit(limit).exec();
+    const items = await this.model.countDocuments();
+
+    return {
+        data,
+        totelItems: items,
+        currentPage: Number(page),
+        totalPages: Math.ceil(items / limit),
+        itemsPerPage: date.length,
+    };
+};
+
+// virtual fields
 postSchema.virtual("comments", {
     ref: "Comment",
     foreignField: "postId",

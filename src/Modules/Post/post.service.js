@@ -144,32 +144,18 @@ export const getSinglePost = async (req, res, next) => {
 
 
 export const activePosts = async (req, res, next) => {
+    // pagination
+    let { page } = req.query;
+    const results = await PostModel.find({ isDeleted: false }).paginate(page);
 
-    // 1
-    // if (req.user.role === roleType.Admin) {
-    //     posts = await dbService.find({
-    //         model: PostModel,
-    //         filter: { isDeleted: false },
-    //         populate: { path: "createdBy", select: "userName image -_id" }
-    //     });
-    // } else {
-    //     posts = await dbService.find({
-    //         model: PostModel,
-    //         filter: { isDeleted: false, createdBy: req.user._id },
-    //         populate: { path: "createdBy", select: "userName image -_id" }
-    //     });
-    // }
-
-    // 2
-    // posts = await dbService.find({
-    //     model: PostModel,
-    //     filter: { isDeleted: false },
-    //     populate: { path: "createdBy", select: "userName image -_id" }
-    // });
-
-    // // add comments to each post
+    // cursor
+    // const cursor = await PostModel.find({ isDeleted: false }).cursor();
     // let results = [];
-    // for (const post of posts) {
+    // for (
+    //     let post = await cursor.next();
+    //     post != null;
+    //     post = await cursor.next()
+    // ) {
     //     const comments = await dbService.find({
     //         model: CommentModel,
     //         filter: { postId: post._id, isDeleted: false },
@@ -177,21 +163,6 @@ export const activePosts = async (req, res, next) => {
     //     });
     //     results.push({ post, comments });
     // }
-
-    const cursor = await PostModel.find({ isDeleted: false }).cursor();
-    let results = [];
-    for (
-        let post = await cursor.next();
-        post != null;
-        post = await cursor.next()
-    ) {
-        const comments = await dbService.find({
-            model: CommentModel,
-            filter: { postId: post._id, isDeleted: false },
-            select: "text image -_id"
-        });
-        results.push({ post, comments });
-    }
     return res.status(200).json({ success: true, date: { results } });
 };
 
