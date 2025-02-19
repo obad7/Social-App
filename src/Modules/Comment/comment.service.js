@@ -42,12 +42,14 @@ export const updateComment = async (req, res, next) => {
     const { commentId } = req.params;
     const { text } = req.body;
 
+    // check if the comment exists
     const comment = await dbService.findOne({
         model: CommentModel,
         filter: { _id: commentId, isDeleted: false }
     });
     if (!comment) return next(new Error("Comment not found", { cause: 404 }));
 
+    // check if the post exists
     const post = await dbService.findOne({
         model: PostModel,
         filter: { _id: comment.postId, isDeleted: false }
@@ -146,7 +148,7 @@ export const like_unlike = async (req, res, next) => {
         filter: { _id: commentId, isDeleted: false },
     });
     if (!comment) return next(new Error("Comment not found", { cause: 404 }));
-    // post
+
     // check if the user has already liked the post
     const isLiked = comment.likes.find(
         (user) => user.toString() === userId.toString()
@@ -230,6 +232,7 @@ export const hardDelete = async (req, res, next) => {
     }
 
     // delete comment with its replies
+    // trigger deleteOne hook
     await comment.deleteOne();
 
     return res.status(200).json({

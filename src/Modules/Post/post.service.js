@@ -7,6 +7,8 @@ import { nanoid } from "nanoid";
 
 export const createPost = async (req, res, next) => {
     const { content } = req.body;
+
+    // check if image is provided and upload it to cloudinary
     const allImages = [];
     let customId;
     if (req.files.length) {
@@ -168,23 +170,6 @@ export const activePosts = async (req, res, next) => {
 
 
 export const freezedPosts = async (req, res, next) => {
-    // let posts;
-
-    // if (req.user.role === roleType.Admin) {
-    //     posts = await dbService.find({
-    //         model: PostModel,
-    //         filter: { isDeleted: true },
-    //         populate: { path: "createdBy", select: "userName image -_id" }
-    //     });
-    // } else {
-    //     posts = await dbService.find({
-    //         model: PostModel,
-    //         filter: { isDeleted: true, createdBy: req.user._id },
-    //         populate: { path: "createdBy", select: "userName image -_id" }
-    //     });
-    // }
-    // return res.status(200).json({ success: true, date: { posts } });
-
     const cursor = await PostModel.find({ isDeleted: true }).cursor();
     let results = [];
     for (
@@ -218,6 +203,7 @@ export const like_unlike = async (req, res, next) => {
         (user) => user.toString() === userId.toString()
     );
 
+    // if the user has already liked the post, remove the like
     if (!isLiked) {
         post.likes.push(userId);
     } else {

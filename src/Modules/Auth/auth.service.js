@@ -85,6 +85,7 @@ export const register = async (req, res, next) => {
         }
     });
 
+    // emit email event
     const findNewUser = await dbService.findOne({ model: UserModel, filter: { email } });
     emailEmitter.emit("sendEmail", userName, email, findNewUser._id);
 
@@ -107,9 +108,11 @@ export const confirmEmail = async (req, res, next) => {
     if (new Date() > user.changeCredentials)
         return next(new Error("code has expired, resend email", { cause: 400 }));
 
+    // check if the code is valid
     if (!compareHash({ plainText: code, hash: user.confirmEmailOTP }))
         return next(new Error("Invalid code", { cause: 400 }))
 
+    // update the user
     await dbService.updateOne({
         model: UserModel,
         filter: { email },
@@ -131,6 +134,7 @@ export const confirmEmail = async (req, res, next) => {
 };
 
 
+// resend email code 
 export const resendEmail = async (req, res, next) => {
     const { email } = req.body;
 
@@ -148,14 +152,15 @@ export const resendEmail = async (req, res, next) => {
     const resendLimit = 3;
     const cooldownPeriod = 3 * 60 * 1000;
 
+    // Check if the user has reached the resend limit
     let updatedResendCount = user.emailResendCount + 1;
     let newCooldown = user.emailResendCooldown;
-
     if (updatedResendCount > resendLimit) {
         updatedResendCount = 1;
         newCooldown = new Date(Date.now() + cooldownPeriod);
     }
 
+    // set changeCredentials to expire in 3 minutes
     const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
 
     // Emit email event and update the user
@@ -283,7 +288,6 @@ export const resetPassword = async (req, res, next) => {
             $unset: { forgetPasswordOTP: "" }
         }
     });
-
 
     return res.status(200).json({
         success: true,

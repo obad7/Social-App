@@ -9,8 +9,10 @@ import commentRouter from "../Comment/comment.controller.js";
 
 const router = Router();
 
+// mergeParams
 router.use("/:postId/comment", commentRouter);
 
+// create post
 router.post(
     "/createPost",
     authentication(),
@@ -20,6 +22,7 @@ router.post(
     asyncHandler(postService.createPost)
 );
 
+// update post
 router.patch(
     "/update/:postId",
     authentication(),
@@ -29,6 +32,7 @@ router.patch(
     asyncHandler(postService.updatePost)
 );
 
+// delete post
 router.patch(
     "/softDelete/:postId",
     authentication(),
@@ -37,6 +41,7 @@ router.patch(
     asyncHandler(postService.softDelete)
 );
 
+// restore post
 router.patch(
     "/restorePost/:postId",
     authentication(),
@@ -45,6 +50,7 @@ router.patch(
     asyncHandler(postService.restorePost)
 );
 
+// get single post
 router.get(
     "/getSinglePost/:postId",
     authentication(),
@@ -53,6 +59,7 @@ router.get(
     asyncHandler(postService.getSinglePost)
 );
 
+// get all active posts
 router.get(
     "/activePosts",
     authentication(),
@@ -60,6 +67,7 @@ router.get(
     asyncHandler(postService.activePosts)
 );
 
+// get all freezed posts
 router.get(
     "/freezedPosts",
     authentication(),
@@ -67,6 +75,7 @@ router.get(
     asyncHandler(postService.freezedPosts)
 );
 
+// like & unlike post
 router.patch(
     "/like_unlike/:postId",
     authentication(),

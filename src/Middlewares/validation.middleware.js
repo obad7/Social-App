@@ -23,7 +23,7 @@ export const validation = (schema) => {
     };
 };
 
-
+// general faileds object
 export const generalFaileds = {
     userName: joi.string().min(3).max(30),
     email: joi

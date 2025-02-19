@@ -3,11 +3,13 @@ import { asyncHandler } from "../utils/error handling/asyncHandler.js";
 import { verifyToken } from "../utils/token/token.js";
 import * as dbService from "../DB/dbService.js";
 
+// token types
 export const tokenTypes = {
     access: "access",
     refresh: "refresh",
 };
 
+// decoded token middleware
 export const decodedToken = async ({
     authorization = "",
     tokenType = tokenTypes.access,
@@ -21,6 +23,7 @@ export const decodedToken = async ({
     let ACCESS_SIGTATURE = undefined;
     let REFRESH_SIGTATURE = undefined;
 
+    // get signature based on bearer
     switch (bearer) {
         case "Admin":
             ACCESS_SIGTATURE = process.env.ADMIN_ACCESS_TOKEN;
@@ -34,6 +37,7 @@ export const decodedToken = async ({
             break;
     }
 
+    // verify token
     const decoded = verifyToken({
         token: token,
         signature:
@@ -46,12 +50,14 @@ export const decodedToken = async ({
     });
     if (!user) return next(new Error("User not found", { cause: 400 }));
 
+    // check if token is expired
     if (user.changeCredentials?.getTime() >= decoded.iat * 1000)
         return next(new Error("Token expired", { cause: 401 }));
 
     return user;
 }
 
+// authentication middleware
 export const authentication = () => {
     return asyncHandler(async (req, res, next) => {
         const { authorization } = req.headers;
@@ -63,6 +69,7 @@ export const authentication = () => {
     });
 }
 
+// authorization middleware
 export const allowTo = (roles = []) => {
     return asyncHandler(async (req, res, next) => {
         if (!roles.includes(req.user.role))

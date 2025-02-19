@@ -11,10 +11,10 @@ const bootstrap = async (app, express) => {
 
     connectDB();
 
+    app.use(cors());
     app.use(express.json());
 
     app.use("/uploads", express.static("uploads"));
-    app.use(cors());
 
     app.use("/admin", adminRouter);
     app.use("/auth", authRouter);

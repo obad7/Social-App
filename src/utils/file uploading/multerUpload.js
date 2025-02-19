@@ -11,7 +11,7 @@ export const fileValidation = {
     audio: ["audio/mpeg"],
 };
 
-export const upload = ( fileType, folder ) => {
+export const upload = (fileType, folder) => {
     const storage = diskStorage({
         destination: (req, file, cb) => {
             const folderPath = path.resolve(".", `${folder}/${req.user._id}`);
@@ -24,18 +24,20 @@ export const upload = ( fileType, folder ) => {
             }
         },
 
+        // specify file name
         filename: (req, file, cb) => {
-            cb(null,  nanoid() + "_" + file.originalname);
+            cb(null, nanoid() + "_" + file.originalname);
         },
     });
 
+    // specify file type
     const fileFilter = (req, file, cb) => {
         if (!fileType.includes(file.mimetype))
             return cb(new Error("File type is not supported"), false);
 
         return cb(null, true);
     };
-    
+
     const multerUpload = multer({ storage, fileFilter });
 
     return multerUpload;

@@ -9,6 +9,7 @@ const router = Router({ mergeParams: true });
 
 // mergeParams
 // post/:postId/comment
+// create comment
 router.post(
     "/",
     authentication(),
@@ -18,6 +19,7 @@ router.post(
     asyncHandler(commentService.createComment)
 );
 
+// update comment
 router.patch(
     "/:commentId",
     authentication(),
@@ -27,6 +29,7 @@ router.patch(
     asyncHandler(commentService.updateComment)
 );
 
+// soft delete comment
 router.patch(
     "/softDelete/:commentId",
     authentication(),
@@ -37,6 +40,7 @@ router.patch(
 
 // mergeParams
 // post/:postId/comment
+// get all comments
 router.get(
     "/",
     authentication(),
@@ -45,7 +49,7 @@ router.get(
     asyncHandler(commentService.getAllComments)
 );
 
-
+// like & unlike comment
 router.patch(
     "/like_unlike/:commentId",
     authentication(),
@@ -56,6 +60,7 @@ router.patch(
 
 // mergeParams
 // post/:postId/comment/:commentId
+// add reply to comment
 router.post(
     "/:commentId",
     authentication(),
@@ -65,6 +70,7 @@ router.post(
     asyncHandler(commentService.addReply)
 );
 
+// hard delete comment
 router.delete(
     "/:commentId",
     authentication(),

@@ -9,6 +9,7 @@ import { uploadOnCloud } from "../../utils/file uploading/multerCloud.js";
 
 const router = Router();
 
+// get profile
 router.post(
     "/profile",
     authentication(),
@@ -16,6 +17,7 @@ router.post(
     asyncHandler(userService.getProfile)
 );
 
+// share profile
 router.get(
     "/profile/:profileId",
     validation(userValidation.shareProfileSchema),
@@ -23,6 +25,7 @@ router.get(
     asyncHandler(userService.shareProfile)
 )
 
+// update profile email
 router.patch(
     "/profile/email",
     validation(userValidation.updateEmailSchema),
@@ -30,6 +33,7 @@ router.patch(
     asyncHandler(userService.updateEmail)
 );
 
+// reset email 
 router.patch(
     "/profile/resetEmail",
     validation(userValidation.resetEmailSchema),
@@ -37,6 +41,7 @@ router.patch(
     asyncHandler(userService.resetEmail)
 );
 
+// update profile
 router.patch(
     "/profile/updateProfile",
     validation(userValidation.updateProfileSchema),
@@ -44,6 +49,7 @@ router.patch(
     asyncHandler(userService.updateProfile)
 );
 
+// update password
 router.patch(
     "/updatePassword",
     validation(userValidation.updatePasswordSchema),
@@ -51,7 +57,8 @@ router.patch(
     asyncHandler(userService.updatePassword)
 );
 
-// Disk Storage
+//////////////////////////////////////////////////////////////////////////
+// upload on Disk Storage
 
 router.post(
     "/profilePicture",
@@ -60,6 +67,7 @@ router.post(
     asyncHandler(userService.uploadImageOnDisk)
 );
 
+// upload multiple images
 router.post(
     "/multipleImages",
     authentication(),
@@ -67,6 +75,7 @@ router.post(
     asyncHandler(userService.uploadMultipleImagesOnDisk)
 );
 
+// delete profile picture
 router.delete(
     "/deleteProfilePicture",
     authentication(),
@@ -74,7 +83,8 @@ router.delete(
     asyncHandler(userService.deleteProfilePicture)
 );
 
-// Cloud Storage
+//////////////////////////////////////////////////////////////////////////
+// upload on Cloud Storage
 
 router.post(
     "/uploadPictureOnCloud",
@@ -83,6 +93,7 @@ router.post(
     asyncHandler(userService.uploadImageOnCloud)
 );
 
+// upload delete profile picture
 router.delete(
     "/deleteImageOnCloud",
     authentication(),

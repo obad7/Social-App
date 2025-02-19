@@ -1,5 +1,5 @@
 import * as dbService from "../../DB/dbService.js";
-import  { EventEmitter } from "events"
+import { EventEmitter } from "events"
 import sendEmail, { subject } from "./sendEmail.js";
 import { signUpHTML } from "./generateHTML.js";
 import { customAlphabet } from "nanoid";
@@ -8,30 +8,35 @@ import { hash } from './../hashing/hash.js';
 
 export const emailEmitter = new EventEmitter();
 
-emailEmitter.on("sendEmail", async( userName, email, id) => {
-    await sendCode({ 
-        data: { userName, email, id }, 
+emailEmitter.on("sendEmail", async (userName, email, id) => {
+    await sendCode({
+        data: { userName, email, id },
         subjectType: subject.verifyEmail,
     });
 });
 
-emailEmitter.on("forgetPassword", async(email, userName, id) => {
-    await sendCode({ 
-        data: { userName, email, id }, 
+emailEmitter.on("forgetPassword", async (email, userName, id) => {
+    await sendCode({
+        data: { userName, email, id },
         subjectType: subject.resetPassword,
     });
 });
 
-emailEmitter.on("updateEmail", async(email, userName, id) => {
-    await sendCode({ 
+emailEmitter.on("updateEmail", async (email, userName, id) => {
+    await sendCode({
         data: { userName, email, id },
         subjectType: subject.updateEmail,
     });
 });
 
 
-export const sendCode = async ({ 
-    data = {}, 
+//This code generates a 6-digit One-Time Password (OTP), hashes it, 
+// and updates a user's document in the database with the hashed OTP. 
+// then sends an email to the user with the OTP and a subject line 
+// based on the subjectType parameter, which can be one of three 
+// types: verify email, reset password, or update email.
+export const sendCode = async ({
+    data = {},
     subjectType = subject.verifyEmail,
 }) => {
     const { userName, email, id } = data;
@@ -39,7 +44,7 @@ export const sendCode = async ({
     const otp = customAlphabet('0123456789', 6)();
     const hashedOtp = hash({ plainText: otp });
 
-    let updateData = { };
+    let updateData = {};
 
     switch (subjectType) {
         case subject.verifyEmail:
@@ -55,9 +60,9 @@ export const sendCode = async ({
             break;
     }
 
-    await dbService.updateOne({ 
-        model: UserModel, 
-        filter: { _id: id }, 
+    await dbService.updateOne({
+        model: UserModel,
+        filter: { _id: id },
         data: updateData,
     });
 
