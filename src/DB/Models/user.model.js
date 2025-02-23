@@ -86,6 +86,10 @@ const userSchema = new Schema(
         isDeleted: { type: Boolean, default: false },
         changeCredentials: Date,
         confirmEmailOTP: String,
+        confirmEmailOTPExpiresAt: {
+            type: Date,
+            index: { expires: 60 }, // TTL index deletes document after 60s
+        },
 
         phone: String,
         address: String,

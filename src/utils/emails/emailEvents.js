@@ -39,36 +39,45 @@ export const sendCode = async ({
     data = {},
     subjectType = subject.verifyEmail,
 }) => {
-    const { userName, email, id } = data;
+    try {
+        const { userName, email, id } = data;
 
-    const otp = customAlphabet('0123456789', 6)();
-    const hashedOtp = hash({ plainText: otp });
+        const otp = customAlphabet('0123456789', 6)();
+        const hashedOtp = hash({ plainText: otp });
 
-    let updateData = {};
+        let updateData = {};
 
-    switch (subjectType) {
-        case subject.verifyEmail:
-            updateData = { confirmEmailOTP: hashedOtp };
-            break;
-        case subject.resetPassword:
-            updateData = { forgetPasswordOTP: hashedOtp };
-            break;
-        case subject.updateEmail:
-            updateData = { tampEmailOTP: hashedOtp };
-            break;
-        default:
-            break;
+        switch (subjectType) {
+            case subject.verifyEmail:
+                updateData = {
+                    confirmEmailOTP: hashedOtp,
+                    confirmEmailOTPExpiresAt: new Date(Date.now() + 60 * 1000) // Ensure OTP expires in 60s
+                };
+                break;
+            case subject.resetPassword:
+                updateData = { forgetPasswordOTP: hashedOtp };
+                break;
+            case subject.updateEmail:
+                updateData = { tampEmailOTP: hashedOtp };
+                break;
+            default:
+                break;
+        }
+
+        await dbService.updateOne({
+            model: UserModel,
+            filter: { _id: id },
+            data: { ...updateData },
+        });
+
+        const isSent = await sendEmail({
+            to: email,
+            subject: subjectType,
+            html: signUpHTML(otp, userName, subjectType)
+        });
+
+    } catch (error) {
+        console.log(error);
     }
 
-    await dbService.updateOne({
-        model: UserModel,
-        filter: { _id: id },
-        data: updateData,
-    });
-
-    const isSent = await sendEmail({
-        to: email,
-        subject: subjectType,
-        html: signUpHTML(otp, userName, subjectType)
-    });
 };

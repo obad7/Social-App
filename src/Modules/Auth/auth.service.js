@@ -73,7 +73,7 @@ export const register = async (req, res, next) => {
     if (user) { return next(new Error("User already exists", { cause: 400 })) }
 
     // set changeCredentials to expire in 3 minutes
-    const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
+    // const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
 
     const newUser = await dbService.create({
         model: UserModel,
@@ -81,7 +81,7 @@ export const register = async (req, res, next) => {
             userName,
             email,
             password: password,
-            changeCredentials: expirationTime,
+            // changeCredentials: expirationTime,
         }
     });
 
@@ -105,8 +105,12 @@ export const confirmEmail = async (req, res, next) => {
     if (user.confirmEmailOTP == true) { return next(new Error("Email already confirmed", { cause: 400 })) }
 
     // check if the code has expired
-    if (new Date() > user.changeCredentials)
-        return next(new Error("code has expired, resend email", { cause: 400 }));
+    // if (new Date() > user.changeCredentials)
+    //     return next(new Error("code has expired, resend email", { cause: 400 }));
+
+    if (!user.confirmEmailOTPExpiresAt || new Date() > user.confirmEmailOTPExpiresAt) {
+        return next(new Error("Code has expired, please request a new one", { cause: 400 }));
+    }
 
     // check if the code is valid
     if (!compareHash({ plainText: code, hash: user.confirmEmailOTP }))
@@ -120,6 +124,7 @@ export const confirmEmail = async (req, res, next) => {
             confirmEmail: true,
             $unset: {
                 confirmEmailOTP: "",
+                confirmEmailOTPExpiresAt: "",
                 changeCredentials: "",
                 emailResendCount: "",
                 emailResendCooldown: "",
@@ -160,11 +165,8 @@ export const resendEmail = async (req, res, next) => {
         newCooldown = new Date(Date.now() + cooldownPeriod);
     }
 
-    // set changeCredentials to expire in 3 minutes
-    const expirationTime = new Date(Date.now() + 3 * 60 * 1000);
-
     // Emit email event and update the user
-    emailEmitter.emit("sendEmail", user.email, user.userName, user._id);
+    emailEmitter.emit("sendEmail", user.userName, user.email, user._id);
 
     await dbService.updateOne({
         model: UserModel,
@@ -172,7 +174,6 @@ export const resendEmail = async (req, res, next) => {
         data: {
             emailResendCount: updatedResendCount,
             emailResendCooldown: newCooldown,
-            changeCredentials: expirationTime,
         }
     });
 
