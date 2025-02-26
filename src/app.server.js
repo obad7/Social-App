@@ -5,16 +5,19 @@ import postRouter from "./Modules/Post/post.controller.js";
 import commentRouter from "./Modules/Comment/comment.controller.js";
 import adminRouter from "./Modules/Admin/admin.controller.js";
 import { globalErrorHandler, notFoundHandler } from "./utils/error handling/globalErrorHandler.js";
-import cors from "cors";
+// graphql
+import { createHandler } from "graphql-http/lib/use/express";
+import { schema } from "./Modules/app.graph.js";
+
 
 const bootstrap = async (app, express) => {
+    await connectDB();
 
-    connectDB();
+    app.use("/graphql", createHandler({ schema: schema }));
 
-    app.use(cors());
     app.use(express.json());
-
     app.use("/uploads", express.static("uploads"));
+
 
     app.use("/admin", adminRouter);
     app.use("/auth", authRouter);
