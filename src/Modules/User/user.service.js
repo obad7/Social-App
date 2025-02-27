@@ -6,6 +6,7 @@ import { hash, compareHash } from "../../utils/hashing/hash.js";
 import path from "path";
 import fs from "fs";
 import cloudinary from "../../utils/file uploading/cloudinaryConfig.js";
+import { isFriend, requestExists } from "./helpers/checkFriends.js";
 
 export const getProfile = async (req, res, next) => {
     const user = await dbService.findOne({
@@ -257,4 +258,52 @@ export const deleteImageOnCloud = async (req, res, next) => {
     });
 };
 
+// sned friend req
+export const sendFriendRequset = async (req, res, next) => {
+    const { friendId } = req.params; // reciver
+    const user = req.user; // sender
 
+    const friend = await dbService.findOne({
+        model: UserModel,
+        filter: { _id: friendId, isDeleted: false },
+    });
+    if (!friend) return next(new Error("User not found", { cause: 404 }));
+
+    // check if user is friend or request exists
+    if (isFriend(user, friend) || requestExists(user, friend)) {
+        return next(new Error("Cannot send friend request", { cause: 400 }));
+    }
+
+    friend.friendRequest.push(user._id);
+    await friend.save();
+
+    return res.status(200).json({ success: true, message: "Done" });
+}
+
+// accept friend req
+export const acceptFriendRequset = async (req, res, next) => {
+    const { friendId } = req.params; // sender
+    const user = req.user; // reciver
+
+    const friend = await dbService.findOne({
+        model: UserModel,
+        filter: { _id: friendId, isDeleted: false },
+    });
+    if (!friend) return next(new Error("User not found", { cause: 404 }));
+
+    // check if user is friend
+    if (isFriend(user, friend)) {
+        return next(new Error("you are already friends", { cause: 400 }));
+    }
+
+    friend.friends.push(user._id);
+    user.friends.push(friend._id);
+
+    user.friendRequest = user.friendRequest
+        .map(String)
+        .filter((id) => id != friend._id.toString());
+
+    await friend.save();
+    await user.save();
+    return res.status(200).json({ success: true, message: "Done" });
+}

@@ -101,4 +101,20 @@ router.delete(
     asyncHandler(userService.deleteImageOnCloud)
 );
 
+// sned friend req
+router.post(
+    "/friend-request/:friendId",
+    authentication(),
+    validation(userValidation.sendFriendRequsetSchema),
+    asyncHandler(userService.sendFriendRequset)
+);
+
+//accept friend req
+router.post(
+    "/friend-request/:friendId/accept",
+    authentication(),
+    validation(userValidation.acceptFriendRequsetSchema),
+    asyncHandler(userService.acceptFriendRequset)
+);
+
 export default router;

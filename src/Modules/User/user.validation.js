@@ -1,5 +1,5 @@
 import joi from "joi";
-import {generalFaileds} from "../../Middlewares/validation.middleware.js";
+import { generalFaileds } from "../../Middlewares/validation.middleware.js";
 
 export const shareProfileSchema = joi.object({
     profileId: generalFaileds.id.required(),
@@ -26,4 +26,12 @@ export const updateProfileSchema = joi.object({
     address: generalFaileds.address,
     phone: generalFaileds.phone,
     DOB: generalFaileds.DOB,
+}).required();
+
+export const sendFriendRequsetSchema = joi.object({
+    friendId: generalFaileds.id.required(),
+}).required();
+
+export const acceptFriendRequsetSchema = joi.object({
+    friendId: generalFaileds.id.required(),
 }).required();

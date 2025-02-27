@@ -109,6 +109,10 @@ const userSchema = new Schema(
         tempEmail: String,
         tampEmailOTP: String,
 
+        friendRequest: [{ type: Types.ObjectId, ref: "User" }],
+        friends: [{ type: Types.ObjectId, ref: "User" }],
+
+
     },
     { timestamps: true }
 );
