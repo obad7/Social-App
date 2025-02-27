@@ -5,9 +5,10 @@ import {
     GraphQLObjectType,
     GraphQLString,
     GraphQLBoolean,
-    GraphQLEnumType
+    GraphQLNonNull
 } from "graphql";
 import * as postService from "./post.query.service.js";
+import * as postMutation from "./post.mutation.js";
 
 // you will handle the returned data from the service in "type"
 export const query = {
@@ -73,11 +74,37 @@ export const query = {
 }
 
 
-// export const mutation = {
-//     likePosts: {
-//         type: GraphQLString,
-//         resolve: (parent, args) => {
-//             return "Hello World"
-//         },
-//     },
-// }
+export const mutation = {
+    likePosts: {
+        type: new GraphQLObjectType({
+            name: "likePosts",
+            fields: {
+                message: { type: GraphQLString },
+                statusCode: { type: GraphQLInt },
+                data: {
+                    type: new GraphQLObjectType({  // Instead of GraphQLList
+                        name: "onePostLikesResponse",
+                        fields: {
+                            content: { type: GraphQLString },
+                            images: {
+                                type: new GraphQLList(new GraphQLObjectType({
+                                    name: "Images",
+                                    fields: {
+                                        secure_url: { type: GraphQLString },
+                                        public_id: { type: GraphQLString }
+                                    }
+                                }))
+                            },
+                            likes: { type: new GraphQLList(GraphQLID) },
+                        },
+                    }),
+                },
+            },
+        }),
+        args: {
+            postId: { type: new GraphQLNonNull(GraphQLID) },
+            authorization: { type: new GraphQLNonNull(GraphQLString) },
+        },
+        resolve: postMutation.likePost,
+    },
+}

@@ -11,11 +11,11 @@ export const schema = new GraphQLSchema({
         },
     }),
 
-    // mutation: new GraphQLObjectType({
-    //     name: "socialAppMutation",
-    //     description: "main app mutation",
-    //     fields: {
-    //         ...postController.mutation,
-    //     },
-    // }),
+    mutation: new GraphQLObjectType({
+        name: "socialAppMutation",
+        description: "main app mutation",
+        fields: {
+            ...postController.mutation,
+        },
+    }),
 });
