@@ -29,3 +29,8 @@ export const likeAndUnlikeSchema = joi.object({
     postId: generalFaileds.id.required(),
 });
 
+// graph
+export const likeAndGraph = joi.object({
+    postId: generalFaileds.id.required(),
+    authorization: joi.string().required()
+}).required();
