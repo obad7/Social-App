@@ -1,19 +1,21 @@
-import {
-    GraphQLString,
-    GraphQLObjectType,
-    GraphQLSchema
-} from "graphql";
+import { GraphQLObjectType, GraphQLSchema } from "graphql";
+import * as postController from "./Post/graphql/post.graph.controller.js";
+
 
 export const schema = new GraphQLSchema({
     query: new GraphQLObjectType({
-        name: "mineQuery",
+        name: "socialAppQuery",
+        description: "main app query",
         fields: {
-            welcome: {
-                type: GraphQLString,
-                resolve: (parent, args) => {
-                    return "Hello World"
-                },
-            },
+            ...postController.query,
         },
     }),
+
+    // mutation: new GraphQLObjectType({
+    //     name: "socialAppMutation",
+    //     description: "main app mutation",
+    //     fields: {
+    //         ...postController.mutation,
+    //     },
+    // }),
 });
