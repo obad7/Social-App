@@ -1,4 +1,3 @@
-import { validate } from "graphql";
 import mongoose, { Schema, model, Types } from "mongoose";
 
 // messageSchema to store messages
@@ -22,7 +21,7 @@ const chatSchema = new Schema(
             }
         },
 
-        message: [messageSchema],
+        messages: [messageSchema],
     },
     {
         timestamps: true,

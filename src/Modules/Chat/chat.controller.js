@@ -12,8 +12,17 @@ router.get(
     "/:friendId",
     authentication(),
     allowTo(["User"]),
-    validation(chatValidation.createChatSchema),
+    validation(chatValidation.getChatSchema),
     asyncHandler(chatService.getChat)
+);
+
+// sent message
+router.post(
+    "/message/:friendId",
+    authentication(),
+    allowTo(["User"]),
+    validation(chatValidation.sendMessageSchema),
+    asyncHandler(chatService.sendMessage)
 );
 
 export default router;
