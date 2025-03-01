@@ -9,6 +9,7 @@ import { globalErrorHandler, notFoundHandler } from "./utils/error handling/glob
 // graphql
 import { createHandler } from "graphql-http/lib/use/express";
 import { schema } from "./Modules/app.graph.js";
+import cors from "cors";
 
 
 const bootstrap = async (app, express) => {
@@ -19,6 +20,7 @@ const bootstrap = async (app, express) => {
     app.use(express.json());
     app.use("/uploads", express.static("uploads"));
 
+    app.use(cors());
 
     app.use("/admin", adminRouter);
     app.use("/auth", authRouter);
